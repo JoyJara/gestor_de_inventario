@@ -3,15 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Reportes - Punto de Venta</title>
-    <!-- bootstrap css -->
+    <title>Panel de Inicio</title>
+
+    <!-- bootstrap -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
     <!-- css -->
     <link rel="stylesheet" href="/css/style.css" />
 
+    <!-- esto es pa q el footer siempre este hasta abajo de la página -->
     <style>
       html,
       body {
@@ -25,9 +28,6 @@
       .content {
         flex: 1;
       }
-      footer {
-        margin-top: 20px;
-      }
     </style>
   </head>
 
@@ -38,6 +38,7 @@
         <div class="container-fluid">
           <a class="navbar-brand" href="#">Gestor de Inventario</a>
 
+          <!--este botón del navbar solo se muestra cuando el tamaño de la página es muy pequeño -->
           <button
             class="navbar-toggler"
             type="button"
@@ -45,18 +46,20 @@
             data-bs-target="#menu_navegacion"
             aria-controls="menu_navegacion"
             aria-expanded="false"
-            aria-label="Toggle navigation"
+            aria-label="menú de navegación"
           >
             <span class="navbar-toggler-icon"></span>
           </button>
 
           <div class="collapse navbar-collapse" id="menu_navegacion">
+            <!-- indíca un menu colapsable-->
+
+            <!-- lista del menú y su contenido -->
             <ul class="navbar-nav ms-auto">
+              <!-- mueve el menú hacia la derecha -->
+
               <li class="nav-item">
-                <a
-                  class="nav-link active"
-                  aria-current="page"
-                  href="/paginas/inicio.html"
+                <a class="nav-link active" aria-current="page" href="/paginas/inicio.html"
                   >Inicio</a
                 >
               </li>
@@ -77,30 +80,56 @@
     </header>
     <!-- contenido de la página -->
     <main class="content">
+      <!-- grid (filas y columnas) que contiene las categorías (cards) del panel de inicio -->
       <div class="container mt-5">
-        <h1 class="mb-4">Reportes</h1>
-        <p>Genera y consulta reportes de ventas e inventario.</p>
+        <h1 class="mb-4">Panel de Inicio</h1>
 
-        <!-- estos son ejemplos random, todavía no esta implementado xd -->
         <div class="row">
-          <div class="col-md-6 mb-3">
-            <div class="card">
+          <!-- es una sola fila -->
+
+          <div class="col-md-4">
+            <!-- columan 1 -->
+            <div class="card text-center mb-3">
               <div class="card-body">
-                <h5 class="card-title">Reporte de Ventas</h5>
-                <p class="card-text">Ventas diarias, semanales o mensuales.</p>
-                <a href="#" class="btn btn-outline-success">Generar</a>
-                <a href="#" class="btn btn-outline-success">Visualizar</a>
+                <h5 class="card-title">Ventas</h5>
+                <p class="card-text">
+                  Accede al punto de venta y realiza transacciones.
+                </p>
+                <a href="/paginas/ventas.html" class="btn btn-outline-success"
+                  >Ir a Ventas</a
+                >
               </div>
             </div>
           </div>
 
-          <div class="col-md-6 mb-3">
-            <div class="card">
+          <div class="col-md-4">
+            <!-- columan 2 -->
+            <div class="card text-center mb-3">
               <div class="card-body">
-                <h5 class="card-title">Reporte de Inventario</h5>
-                <p class="card-text">Estado del stock de tus productos.</p>
-                <a href="#" class="btn btn-outline-success">Generar</a>
-                <a href="#" class="btn btn-outline-success">Visualizar</a>
+                <h5 class="card-title">Inventario</h5>
+                <p class="card-text">
+                  Consulta y gestiona el stock de productos.
+                </p>
+                <a
+                  href="/paginas/inventario.html"
+                  class="btn btn-outline-success"
+                  >Ir a Inventario</a
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <!-- columan 3 -->
+            <div class="card text-center mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Reportes</h5>
+                <p class="card-text">
+                  Visualiza y crea informes de ventas y actividad.
+                </p>
+                <a href="/paginas/reportes.html" class="btn btn-outline-success"
+                  >Ver Reportes</a
+                >
               </div>
             </div>
           </div>
@@ -115,7 +144,7 @@
       </div>
     </footer>
 
-    <!-- bootstrap bundle -->
+    <!-- bootstrap bundle, incluye todos los plugins de js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
