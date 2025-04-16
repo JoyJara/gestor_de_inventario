@@ -86,6 +86,17 @@ app.post('/login', (req, res) => {
       }
     });
   });
+
+// Ruta para cerrar la sesión del usuario.
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+      if (err) {
+        return res.redirect('/paginas/inicio');
+      }
+      res.clearCookie('connect.sid'); // Limpia la cookie de sesión
+      res.redirect('/'); // Redirige al login
+    });
+  });
   
 // Iniciar servidor.
 app.listen(PORT, () => {
