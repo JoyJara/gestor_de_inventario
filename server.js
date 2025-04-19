@@ -1,9 +1,10 @@
 const express = require('express');
-const mysql = require('mysql2');
 const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const { verificarSesion } = require('./middlewares/auth');
+const connection = require('./db')
+const invetarioRoutes = require('./routes/inventario')
 
 
 const app = express();
@@ -31,23 +32,8 @@ app.get('/paginas/:archivo', (req, res) => {
   
     res.sendFile(path.join(__dirname, 'paginas', archivo));
   });
-  
 
-// Datos de la conexión a la base mysql, si lo quieren pobrar pongan credenciales.
-const connection = mysql.createConnection({
-  host: '100.106.98.2', // Aquí pongan la ip que le aparece en tailscale.
-  user: 'JoyJara',
-  password: 'tu_contraseña',
-  database: 'inventario'
-});
-
-connection.connect((err) => {
-  if (err) {
-    console.error('Error al conectar a la base de datos:', err);
-    return;
-  }
-  console.log('Conectado a la base MySQL');
-});
+app.use(invetarioRoutes);
 
 // Ruta para mostrar el login (la url principal)
 app.get('/', (req, res) => {
@@ -97,8 +83,18 @@ app.get('/logout', (req, res) => {
       res.redirect('/'); // Redirige al login
     });
   });
-  
-// Iniciar servidor.
+
+
+// Conexión a la base de datos.
+  connection.connect((err) => {
+    if (err) {
+      console.error('Error al conectar a la base de datos:', err);
+      return;
+    }
+    console.log('Conectado a la base MySQL');
+  });
+
+// Iniciar el servidor.
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
