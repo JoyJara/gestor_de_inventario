@@ -1,33 +1,31 @@
-
 :root {
-    --verde-principal: #28a745;
-  }
-  
-  /* color pal nav bar */
-  .custom-green {
-    background-color: var(--verde-principal) !important;
-  }
-  
-  /* botón custom */
-  .custom-green-btn {
-    background-color: var(--verde-principal);
-    border-color: var(--verde-principal);
-    color: #fff;
-  }
-  
-  /* esto es pa cuando pasas el ratón en cima del botón*/
-  .custom-green-btn:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
-    color: #fff;
-  }
-  
-  /* fuente principal */
-  body {
-    font-family: Arial, sans-serif;
-  }
+  --verde-principal: #28a745;
+}
 
-  footer {
-    margin-bottom: -16px;
-  }
-  
+/* color pal nav bar */
+.custom-green {
+  background-color: var(--verde-principal) !important;
+}
+
+/* botón custom */
+.custom-green-btn {
+  background-color: var(--verde-principal);
+  border-color: var(--verde-principal);
+  color: #fff;
+}
+
+/* esto es pa cuando pasas el ratón en cima del botón*/
+.custom-green-btn:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+  color: #fff;
+}
+
+/* fuente principal */
+body {
+  font-family: Arial, sans-serif;
+}
+
+footer {
+  margin-bottom: -16px;
+}

@@ -1,9 +1,9 @@
 function verificarSesion(req, res, next) {
-    if (req.session.usuario) {
-      next();
-    } else {
-      res.redirect('/');
-    }
+  if (req.session.usuario) {
+    next();
+  } else {
+    res.redirect('/');
   }
-  
-  module.exports = { verificarSesion };
+}
+
+module.exports = { verificarSesion };
