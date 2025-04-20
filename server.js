@@ -3,8 +3,10 @@ const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const { verificarSesion } = require('./middlewares/auth');
-const connection = require('./db')
-const invetarioRoutes = require('./routes/inventario')
+const connection = require('./models/db')
+
+const inventarioRoutes = require('./routes/inventario')
+const categoriasRoutes = require('./routes/categorias');
 
 
 const app = express();
@@ -21,30 +23,77 @@ app.use(session({
   }));
   
 
-// Servir archivos estáticos css y js
-app.use('/css', express.static(path.join(__dirname, 'css')));
-app.use('/js', express.static(path.join(__dirname, 'js')));
+// Servir archivos estáticos dentro del folder public.
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Middleware para todas las páginas dentro de paginas/
-app.use('/paginas', verificarSesion)
-app.get('/paginas/:archivo', (req, res) => {
+// Middleware para todas las páginas dentro de views/
+app.use('/views', verificarSesion)
+app.get('/views/:archivo', (req, res) => {
     const archivo = req.params.archivo;
   
-    res.sendFile(path.join(__dirname, 'paginas', archivo));
+    res.sendFile(path.join(__dirname, 'views', archivo));
   });
 
-app.use(invetarioRoutes);
+app.use(categoriasRoutes)
+app.use(inventarioRoutes);
 
 // Ruta para mostrar el login (la url principal)
 app.get('/', (req, res) => {
     if (req.session.usuario) {
       // Si ya inició sesión, redirigir al panel
-      res.redirect('/paginas/inicio.html');
+      res.redirect('/views/inicio.html');
     } else {
       // Si no ha iniciado sesión, mostrar login
-      res.sendFile(path.join(__dirname, 'login.html'));
+      res.sendFile(path.join(__dirname, '/public/login.html'));
     }
   });
+
+  app.put('/api/inventario/:id', (req, res) => {
+    const idProducto = req.params.id;
+    const { Producto, Categoria, Stock, Precio } = req.body;
+  
+    // Validación básica
+    if (!Producto || !Categoria || !Stock || !Precio) {
+      return res.status(400).json({ error: 'Faltan campos requeridos' });
+    }
+  
+    // 1. Actualizar la tabla productos
+    const queryProductos = `
+      UPDATE productos 
+      SET nombre = ?, IDcategoria = ?, precio = ? 
+      WHERE IDproducto = ?
+    `;
+  
+    connection.query(queryProductos, [Producto, Categoria, Precio, idProducto], (err, resultProductos) => {
+      if (err) {
+        console.error('Error al actualizar productos:', err);
+        return res.status(500).json({ error: 'Error al actualizar en productos' });
+      }
+  
+      // 2. Actualizar la tabla inventario
+      const queryInventario = `
+        UPDATE inventario 
+        SET stock = ? 
+        WHERE IDproducto = ?
+      `;
+  
+      connection.query(queryInventario, [Stock, idProducto], (err, resultInventario) => {
+        if (err) {
+          console.error('Error al actualizar inventario:', err);
+          return res.status(500).json({ error: 'Error al actualizar en inventario' });
+        }
+  
+        return res.json({
+          success: true,
+          message: 'Producto actualizado correctamente',
+          resultProductos,
+          resultInventario
+        });
+      });
+    });
+  });
+  
+  
   
 // Ruta para procesar login
 app.post('/login', (req, res) => {
@@ -61,7 +110,7 @@ app.post('/login', (req, res) => {
         bcrypt.compare(password, user.contrasena, (err, match) => {
           if (match) {
             req.session.usuario = usuario; // Guardar sesión
-            res.redirect('/paginas/inicio.html');
+            res.redirect('/views/inicio.html');
           } else {
             res.send('Contraseña incorrecta');
           }
@@ -77,7 +126,7 @@ app.post('/login', (req, res) => {
 app.get('/logout', (req, res) => {
     req.session.destroy(err => {
       if (err) {
-        return res.redirect('/paginas/inicio');
+        return res.redirect('/views/inicio');
       }
       res.clearCookie('connect.sid'); // Limpia la cookie de sesión
       res.redirect('/'); // Redirige al login

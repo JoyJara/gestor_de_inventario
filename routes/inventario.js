@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const connection = require('../db'); // conexión a la base
+const connection = require('../models/db'); // conexión a la base
 
 router.get('/api/inventario', (req, res) => {
   connection.query('SELECT * FROM stocktotal', (err, results) => {

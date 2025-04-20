@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Ventas - Punto de Venta</title>
+    <title>Reportes - Punto de Venta</title>
     <!-- bootstrap css -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -25,6 +25,9 @@
       .content {
         flex: 1;
       }
+      footer {
+        margin-top: 20px;
+      }
     </style>
   </head>
 
@@ -40,7 +43,7 @@
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#menu_navegacion"
-            aria-controls="men#menu_navegacion"
+            aria-controls="menu_navegacion"
             aria-expanded="false"
             aria-label="Toggle navigation"
           >
@@ -53,19 +56,19 @@
                 <a
                   class="nav-link active"
                   aria-current="page"
-                  href="/paginas/inicio.html"
+                  href="/views/inicio.html"
                   >Inicio</a
                 >
               </li>
 
               <li class="nav-item">
-                <a class="nav-link" href="/paginas/usuarios.html"
+                <a class="nav-link" href="/views/usuarios.html"
                   >Usuarios</a
                 >
               </li>
 
               <li class="nav-item">
-                <a class="nav-link" href="/paginas/contacto.html">Contacto</a>
+                <a class="nav-link" href="/views/contacto.html">Contacto</a>
               </li>
 
               <li class="nav-item">
@@ -80,63 +83,30 @@
     <!-- contenido de la página -->
     <main class="content">
       <div class="container mt-5">
-        <h1 class="mb-4">Punto de Venta</h1>
+        <h1 class="mb-4">Reportes</h1>
+        <p>Genera y consulta reportes de ventas e inventario.</p>
 
-        <!-- formulario del pos, solo esta de adorno -->
-        <form>
-          <div class="mb-3">
-            <label for="producto" class="form-label">Producto</label>
-            <input
-              type="text"
-              class="form-control"
-              id="producto"
-              placeholder="Nombre o ID del producto"
-            />
+        <!-- estos son ejemplos random, todavía no esta implementado xd -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Reporte de Ventas</h5>
+                <p class="card-text">Ventas diarias, semanales o mensuales.</p>
+                <a href="#" class="btn btn-outline-success">Generar</a>
+                <a href="#" class="btn btn-outline-success">Visualizar</a>
+              </div>
+            </div>
           </div>
 
-          <div class="mb-3">
-            <label for="cantidad" class="form-label">Cantidad</label>
-            <input
-              type="number"
-              class="form-control"
-              id="cantidad"
-              placeholder="Cantidad a vender"
-            />
-          </div>
-
-          <button type="submit" class="btn custom-green-btn">
-            Agregar al carrito
-          </button>
-        </form>
-
-        <!-- detallles del carrito -->
-        <div class="row mt-4">
-          <div class="col-12">
-            <h3>Detalles del Carrito</h3>
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Cantidad</th>
-                  <th>Precio Unitario</th>
-                  <th>Total</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Bacardí 980 ml</td>
-                  <td>2</td>
-                  <td>$269.00</td>
-                  <td>$538.00</td>
-                  <td>
-                    <button class="btn btn-sm btn-danger">Eliminar</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="text-end">
-              <h4>Monto Total: $538.00</h4>
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Reporte de Inventario</h5>
+                <p class="card-text">Estado del stock de tus productos.</p>
+                <a href="#" class="btn btn-outline-success">Generar</a>
+                <a href="#" class="btn btn-outline-success">Visualizar</a>
+              </div>
             </div>
           </div>
         </div>
