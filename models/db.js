@@ -8,4 +8,13 @@ const connection = mysql.createConnection({
   database: 'inventario'
 });
 
+// Conexión a la base de datos.
+connection.connect((err) => {
+  if (err) {
+    console.error('Error al conectar a la base de datos:', err);
+    return;
+  }
+  console.log('Conectado a la base MySQL');
+});
+
 module.exports = connection;

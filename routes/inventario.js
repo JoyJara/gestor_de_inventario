@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const connection = require('../models/db'); // conexión a la base
+const { obtenerInventario, actualizarProducto } = require('../controllers/inventarioController');
 
-router.get('/api/inventario', (req, res) => {
-  connection.query('SELECT * FROM stocktotal', (err, results) => {
-    if (err) return res.status(500).send('Error en el servidor');
-    res.json(results);
-  });
-});
+// Ruta GET para obtener todo el inventario
+router.get('/api/inventario', obtenerInventario);
+
+// Ruta PUT para actualizar un producto
+router.put('/api/inventario/:id', actualizarProducto);
 
 module.exports = router;
