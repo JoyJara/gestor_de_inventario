@@ -30,7 +30,7 @@ function cargarInventario() {
             tbody.innerHTML = '';
 
             data.forEach((item, index) => {
-                const row = document.createElement('tr');
+                const row = document.createElement('tr'); // tr = table row
                 row.innerHTML = `
           <td>${item.idProducto}</td>
           <td>${item.Producto}</td>
@@ -39,7 +39,8 @@ function cargarInventario() {
           <td>$${item.Precio}</td>
           <td>
             <button class="btn btn-sm btn-warning btn-editar" data-index="${index}" data-bs-toggle="modal" data-bs-target="#modalEditar">Editar</button>
-            <button class="btn btn-sm btn-danger">Eliminar</button>
+
+            <button class="btn btn-sm btn-danger deleteButton" data-index="${index}">Eliminar</button>
           </td>
         `;
                 tbody.appendChild(row);
@@ -63,6 +64,31 @@ function cargarInventario() {
                     );
                     document.getElementById('editarCategoria').value = categoriaID || '';
 
+                });
+            });
+
+            document.querySelectorAll('.deleteButton').forEach(button => {
+                button.addEventListener('click', function () {
+                    const index = this.getAttribute('data-index');
+                    const producto = inventarioData[index];
+                    const id = producto.idProducto;
+
+                    fetch(`/api/inventario/${id}`, {
+                        method: 'DELETE',
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Producto eliminado exitosamente');
+                                location.reload(); // Recarga la tabla o página
+                            } else {
+                                alert('Error al eliminar: ' + (data.error || 'Error desconocido'));
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error al eliminar:', err);
+                            alert('Ocurrió un error al conectar con el servidor');
+                        });
                 });
             });
         })

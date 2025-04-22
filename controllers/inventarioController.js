@@ -1,5 +1,24 @@
 const connection = require('../models/db');
 
+exports.deleteProduct = (req, res) => {
+    const idProducto = req.params.id;
+    const deleteProduct = `CALL inventario.deleteProduct(?)`
+
+    connection.query(deleteProduct, [idProducto], (err, result) => {
+        if (err) {
+            //console.error('Error al eliminar el producto:', err.sqlMessage || err);
+            console.log(idProducto);
+            return res.status(500).json({ error: 'Error al eliminar el producto' });
+        }
+
+        return res.json({
+            success: true,
+            message: 'Producto eliminado correctamente',
+            result,
+        });
+    });
+};
+
 exports.actualizarProducto = (req, res) => {
     const idProducto = req.params.id;
     const { Producto, Categoria, Stock, Precio } = req.body;

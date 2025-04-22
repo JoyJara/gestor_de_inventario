@@ -38,7 +38,7 @@ app.use(authRoutes);
 
 // Ruta para mostrar el login (la url principal)
 app.get('/', (req, res) => {
-  if (req.session.usuario) {
+  if (req.session.username) {
     // Si ya inició sesión, redirigir al panel
     res.redirect('/views/inicio.html');
   } else {

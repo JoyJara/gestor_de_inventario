@@ -1,5 +1,5 @@
 function verificarSesion(req, res, next) {
-  if (req.session.usuario) {
+  if (req.session.username) {
     next();
   } else {
     res.redirect('/');
