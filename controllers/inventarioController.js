@@ -4,7 +4,7 @@ exports.deleteProduct = (req, res) => {
     const idProducto = req.params.id;
     const deleteProduct = `CALL inventario.deleteProduct(?)`
 
-    connection.query(deleteProduct, [idProducto], (err, result) => {
+    connection.query(deleteProduct, [idProducto], (err, results) => {
         if (err) {
             //console.error('Error al eliminar el producto:', err.sqlMessage || err);
             console.log(idProducto);
@@ -14,55 +14,36 @@ exports.deleteProduct = (req, res) => {
         return res.json({
             success: true,
             message: 'Producto eliminado correctamente',
-            result,
+            results,
         });
     });
 };
 
-exports.actualizarProducto = (req, res) => {
-    const idProducto = req.params.id;
+exports.editProduct = (req, res) => {
+    const productID = req.params.id;
+    const editProduct = `CALL inventario.editProduct(?, ?, ?, ?, ?)`
     const { Producto, Categoria, Stock, Precio } = req.body;
 
     if (!Producto || !Categoria || !Stock || !Precio) {
         return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
 
-    const queryProductos = `
-      UPDATE productos 
-      SET nombre = ?, IDcategoria = ?, precio = ? 
-      WHERE IDproducto = ?
-  `;
-
-    connection.query(queryProductos, [Producto, Categoria, Precio, idProducto], (err, resultProductos) => {
+    connection.query(editProduct, [productID, Producto, Categoria, Precio, Stock], (err, results) => {
         if (err) {
             console.error('Error al actualizar productos:', err);
             return res.status(500).json({ error: 'Error al actualizar en productos' });
         }
 
-        const queryInventario = `
-        UPDATE inventario 
-        SET stock = ? 
-        WHERE IDproducto = ?
-    `;
-
-        connection.query(queryInventario, [Stock, idProducto], (err, resultInventario) => {
-            if (err) {
-                console.error('Error al actualizar inventario:', err);
-                return res.status(500).json({ error: 'Error al actualizar en inventario' });
-            }
-
-            return res.json({
-                success: true,
-                message: 'Producto actualizado correctamente',
-                resultProductos,
-                resultInventario
-            });
+        return res.json({
+            success: true,
+            message: 'Información del producto actualizada correctamente',
+            results,
         });
     });
 };
 
-exports.obtenerInventario = (req, res) => {
-    connection.query('SELECT * FROM stocktotal', (err, results) => {
+exports.getInventory = (req, res) => {
+    connection.query('SELECT * FROM inventoryView', (err, results) => {
         if (err) return res.status(500).send('Error en el servidor');
         res.json(results);
     });

@@ -40,3 +40,79 @@ BEGIN
 	DELETE FROM productos WHERE IDproducto = productID;
 END$$
 DELIMITER ;
+
+
+-- Procedimiento para EDITAR productos --
+DELIMITER $$
+CREATE DEFINER=`Joel`@`%` PROCEDURE `editProduct`(
+	IN in_productID INT, 
+    IN in_name VARCHAR(100), 
+    IN in_categoryID INT, 
+    IN in_price DECIMAL(10,2), 
+    IN in_stock INT)
+BEGIN
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		ROLLBACK;
+		SIGNAL SQLSTATE '45000'
+			SET MESSAGE_TEXT = 'Error al actualizar el producto';
+	END;
+    
+    START TRANSACTION;
+    UPDATE products as p
+		SET p.name 			= in_name, 
+            p.categoryID 	= in_categoryID, 
+            p.price 		= in_price 
+	WHERE p.productID = in_productID;
+    
+    UPDATE inventory as i
+		SET i.stock = in_stock
+	WHERE i.productID = in_productID;
+    
+	COMMIT;
+END$$
+DELIMITER ;
+    
+    
+-- Procedimiento para AGREGAR nuevos productos --
+DELIMITER $$
+CREATE PROCEDURE addProduct(
+	IN in_name VARCHAR(100), 
+    IN in_barcode DOUBLE, 
+    IN in_category VARCHAR(100), 
+    IN in_description VARCHAR(200), 
+    IN in_stock INT, 
+    IN in_price DECIMAL(10,2))
+BEGIN
+    -- Variables de apoyo --
+	DECLARE catID INT;
+    DECLARE prodID INT;
+    
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		ROLLBACK;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al agregar el producto';
+	END;
+        
+	START TRANSACTION;
+    -- 1. Obtiene el valor de 'categories.categoryID' en base al nombre y lo guarda en 'catID' --
+    SELECT categoryID INTO catID FROM categories WHERE name = in_category LIMIT 1;
+	
+    IF catID IS NULL THEN 
+		ROLLBACK;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Categoría no encontrada';
+	END IF;
+
+    -- 2. Inserta los valores del nuevo producto en la tabla 'products' --
+		INSERT INTO products(categoryID, barcode, name, description, price) 
+		VALUES (catID, in_barcode, in_name, in_description, in_price);
+		
+	-- 3. Guarda el product ID del último producto insertado en la tabla 'products' --
+        SET prodID = LAST_INSERT_ID();
+	
+    -- 4. Inserta el ID, stock y última fecha de actualización  del producto en la tabla 'inventory' --
+		INSERT INTO inventory(productID, stock, lastUpdateDate)
+		VALUES (prodID, in_stock, NOW());
+    COMMIT;
+END$$
+DELIMITER ;

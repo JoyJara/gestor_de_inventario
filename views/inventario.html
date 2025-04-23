@@ -75,7 +75,7 @@
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody id="tabla-inventario">
+        <tbody id="inventoryTable">
         </tbody>
       </table>
 
@@ -87,7 +87,7 @@
   <!-- Modal de edición -->
   <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <form id="formEditar" class="modal-content">
+      <form id="editForm" class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="modalEditarLabel">Editar Producto</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -99,8 +99,8 @@
             <input type="text" class="form-control" id="editarNombre" required>
           </div>
           <div class="mb-3">
-            <label for="editarCategoria" class="form-label">Categoría</label>
-            <select class="form-select" id="editarCategoria" required>
+            <label for="editCategory" class="form-label">Categoría</label>
+            <select class="form-select" id="editCategory" required>
               <option value="">Selecciona una categoría</option>
               <option value="1">Abarrotes secos</option>
               <option value="2">Enlatados y conservas</option>

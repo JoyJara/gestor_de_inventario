@@ -1,19 +1,19 @@
-let inventarioData = [];
-let categoriasMap = {};
+let inventoryData = [];
+let categoriesMap = {};
 
 // Cargar las categorías al inicio
-function cargarCategoriasEnSelect() {
+function loadCategories() {
     return fetch('/api/categorias')
         .then(res => res.json())
         .then(data => {
-            const select = document.getElementById('editarCategoria');
+            const select = document.getElementById('editCategory');
             select.innerHTML = '<option value="">Selecciona una categoría</option>';
-            data.forEach(cat => {
-                categoriasMap[cat.IDcategoria] = cat.nombre;
+            data.forEach(category => {
+                categoriesMap[category.categoryID] = category.name;
 
                 const option = document.createElement('option');
-                option.value = cat.IDcategoria;
-                option.textContent = cat.nombre;
+                option.value = category.categoryID;
+                option.textContent = category.name;
                 select.appendChild(option);
             });
         })
@@ -21,59 +21,56 @@ function cargarCategoriasEnSelect() {
 }
 
 // Cargar inventario y configurar eventos
-function cargarInventario() {
+function loadInventory() {
     fetch('/api/inventario')
         .then(res => res.json())
         .then(data => {
-            inventarioData = data;
-            const tbody = document.getElementById('tabla-inventario');
+            inventoryData = data;
+            const tbody = document.getElementById('inventoryTable');
             tbody.innerHTML = '';
 
             data.forEach((item, index) => {
                 const row = document.createElement('tr'); // tr = table row
                 row.innerHTML = `
-          <td>${item.idProducto}</td>
-          <td>${item.Producto}</td>
-          <td>${item.Categoria}</td>
+          <td>${item.ID}</td>
+          <td>${item.Name}</td>
+          <td>${item.Category}</td>
           <td>${item.Stock}</td>
-          <td>$${item.Precio}</td>
+          <td>$${item.Price}</td>
           <td>
-            <button class="btn btn-sm btn-warning btn-editar" data-index="${index}" data-bs-toggle="modal" data-bs-target="#modalEditar">Editar</button>
+            <button class="btn btn-sm btn-warning editButton" dataIndex="${index}" data-bs-toggle="modal" data-bs-target="#modalEditar">Editar</button>
 
-            <button class="btn btn-sm btn-danger deleteButton" data-index="${index}">Eliminar</button>
+            <button class="btn btn-sm btn-danger deleteButton" dataIndex="${index}">Eliminar</button>
           </td>
         `;
                 tbody.appendChild(row);
             });
 
             // Evento al dar clic en botón editar
-            document.querySelectorAll('.btn-editar').forEach(btn => {
+            document.querySelectorAll('.editButton').forEach(btn => {
                 btn.addEventListener('click', function () {
-                    const index = this.getAttribute('data-index');
-                    const producto = inventarioData[index];
+                    const index = this.getAttribute('dataIndex');
+                    const product = inventoryData[index];
 
-                    document.getElementById('editarID').value = producto.idProducto;
-                    document.getElementById('editarNombre').value = producto.Producto;
-                    document.getElementById('editarStock').value = producto.Stock;
-                    document.getElementById('editarPrecio').value = producto.Precio;
+                    document.getElementById('editarID').value = product.ID;
+                    document.getElementById('editarNombre').value = product.Name;
+                    document.getElementById('editarStock').value = product.Stock;
+                    document.getElementById('editarPrecio').value = product.Price;
 
-                    // Buscar el ID de categoría a partir del nombre (ya que producto.Categoria es el nombre)
-                    const categoriaNombre = producto.Categoria;
-                    const categoriaID = Object.keys(categoriasMap).find(
-                        key => categoriasMap[key] === categoriaNombre
-                    );
-                    document.getElementById('editarCategoria').value = categoriaID || '';
-
+                    // Buscar el ID de categoría a partir del nombre (ya que product.Categoria es el nombre)
+                    const categoryName = product.Category;
+                    const categoryID = Object.keys(categoriesMap).find(key => categoriesMap[key] === categoryName);
+                    document.getElementById('editCategory').value = categoryID || '';
                 });
             });
 
             document.querySelectorAll('.deleteButton').forEach(button => {
                 button.addEventListener('click', function () {
-                    const index = this.getAttribute('data-index');
-                    const producto = inventarioData[index];
-                    const id = producto.idProducto;
+                    const index = this.getAttribute('dataIndex');
+                    const product = inventoryData[index];
+                    const productID = product.ID;
 
-                    fetch(`/api/inventario/${id}`, {
+                    fetch(`/api/inventario/${productID}`, {
                         method: 'DELETE',
                     })
                         .then(res => res.json())
@@ -97,33 +94,35 @@ function cargarInventario() {
         });
 }
 
+function addProduct() {}
+
 // Ejecutar todo cuando cargue el DOM
 document.addEventListener('DOMContentLoaded', function () {
-    cargarCategoriasEnSelect().then(() => {
-        cargarInventario();
+    loadCategories().then(() => {
+        loadInventory();
     });
 });
 
 // Enviar cambios al backend al hacer submit del formulario
-document.getElementById('formEditar').addEventListener('submit', function (event) {
+document.getElementById('editForm').addEventListener('submit', function (event) {
     event.preventDefault();
 
-    const id = document.getElementById('editarID').value;
-    const nombre = document.getElementById('editarNombre').value;
-    const categoria = document.getElementById('editarCategoria').value;
+    const productID = document.getElementById('editarID').value;
+    const name = document.getElementById('editarNombre').value;
+    const category = document.getElementById('editCategory').value;
     const stock = document.getElementById('editarStock').value;
-    const precio = document.getElementById('editarPrecio').value;
+    const price = document.getElementById('editarPrecio').value;
 
-    fetch(`/api/inventario/${id}`, {
+    fetch(`/api/inventario/${productID}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-            Producto: nombre,
-            Categoria: categoria,
+            Producto: name,
+            Categoria: category,
             Stock: stock,
-            Precio: precio
+            Precio: price
         })
     })
         .then(res => res.json())
