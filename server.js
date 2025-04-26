@@ -7,12 +7,14 @@ const { verificarSesion } = require('./middlewares/auth');
 const inventarioRoutes = require('./routes/inventario')
 const categoriasRoutes = require('./routes/categorias');
 const authRoutes = require('./routes/auth');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 const PORT = 3000;
 
 // Middleware para parsear datos de formularios (ya incluido en express)
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Configurar sesión
 app.use(session({
@@ -23,6 +25,9 @@ app.use(session({
 
 // Servir archivos estáticos dentro del folder public.
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware centralizado de errores.
+app.use(errorHandler)
 
 // Middleware para todas las páginas dentro de views/
 app.use('/views', verificarSesion)

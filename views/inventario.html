@@ -79,8 +79,10 @@
         </tbody>
       </table>
 
-      <!-- Puedes también añadir mb-4 al botón si quieres más separación puntual -->
-      <button type="submit" class="btn custom-green-btn mb-4">Agregar Producto</button>
+      <button id="addProduct" type="button" class="btn custom-green-btn mb-4" data-bs-toggle="modal" data-bs-target="#newProduct">
+        Agregar Producto
+      </button>
+
     </div>
   </main>
 
@@ -102,18 +104,7 @@
             <label for="editCategory" class="form-label">Categoría</label>
             <select class="form-select" id="editCategory" required>
               <option value="">Selecciona una categoría</option>
-              <option value="1">Abarrotes secos</option>
-              <option value="2">Enlatados y conservas</option>
-              <option value="3">Botanas y dulces</option>
-              <option value="4">Cereales y barras</option>
-              <option value="5">Pan y tortillas</option>
-              <option value="6">Bebidas</option>
-              <option value="7">Lácteos y derivados</option>
-              <option value="8">Embutidos</option>
-              <option value="9">Higiene personal</option>
-              <option value="10">Limpieza hogar</option>
-              <option value="11">Desechables y empaques</option>
-              <option value="12">Mascotas</option>
+              
             </select>
           </div>
           <div class="mb-3">
@@ -132,6 +123,53 @@
       </form>
     </div>
   </div>
+
+    <!-- Modal de nuevo producto -->
+    <div class="modal fade" id="newProduct" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <form id="addForm" class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addModalLabel">Agregar Nuevo Producto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+
+            <input type="hidden" id="editarID">
+            <div class="mb-3">
+              <label for="newName" class="form-label">Nombre del producto</label>
+              <input type="text" class="form-control" id="newName" required>
+            </div>
+            <div class="mb-3">
+              <label for="newBarcode" class="form-label">Código de Barras</label>
+              <input type="text" class="form-control" id="newBarcode" required>
+            </div>
+            <div class="mb-3">
+              <label for="newCategory" class="form-label">Categoría</label>
+              <select class="form-select" id="newCategory" required>
+                <option value="">Selecciona una categoría</option>
+                
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="newDescription" class="form-label">Descripción</label>
+              <input type="text" class="form-control" id="newDescription" required>
+            </div>
+            <div class="mb-3">
+              <label for="newStock" class="form-label">Stock</label>
+              <input type="number" class="form-control" id="newStock" required>
+            </div>
+            <div class="mb-3">
+              <label for="newPrice" class="form-label">Precio</label>
+              <input type="number" step="0.01" class="form-control" id="newPrice" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Agregar</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
   <!-- footer -->
   <footer class="custom-green text-white text-center py-3">

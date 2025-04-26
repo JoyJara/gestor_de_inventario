@@ -48,3 +48,36 @@ exports.getInventory = (req, res) => {
         res.json(results);
     });
 };
+
+exports.getCategories = (req, res, next) => {
+    connection.query('SELECT categoryID, name FROM categories ORDER BY name', (err, results) => {
+        if (err) { return next(err); }
+        res.json(results);
+    });
+};
+
+exports.addProduct = (req, res) => {
+    const query = `CALL addProduct(?, ?, ?, ?, ?, ?)`;
+    const { name, barcode, category, description, stock, price } = req.body;
+  
+    connection.query(
+      query,
+      [name, barcode, category, description, stock, price],
+      (err, results) => {
+        if (err) {
+          console.error('Error al agregar el producto:', err);
+          return res
+            .status(500)
+            .json({ success: false, error: err.message });
+        }
+  
+        // Opcional: si tu procedure devuelve algo útil, está en results[0]
+        return res.json({
+          success: true,
+          message: 'Producto agregado correctamente',
+          insertedId: results[0]?.insertId
+        });
+      }
+    );
+  };
+  
