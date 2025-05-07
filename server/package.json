@@ -2,9 +2,9 @@
   "name": "server",
   "version": "1.0.0",
   "main": "index.ts",
-  "scripts": {
-    "dev": "nodemon"
-  },
+"scripts": {
+  "dev": "nodemon"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
