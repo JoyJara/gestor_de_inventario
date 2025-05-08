@@ -5,6 +5,7 @@ interface Product {
   id: number;
   name: string;
   price: number;
+  productID: number;
 }
 
 interface CartItem extends Product {
@@ -16,7 +17,7 @@ const POS: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [quantity, setQuantity] = useState<number>(1);
+  const [quantity, setQuantity] = useState<number>(0);
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
@@ -32,9 +33,10 @@ const POS: React.FC = () => {
     setSelectedProduct(null);
 
     if (value.length > 0) {
-      const matches = products.filter((p) =>
-        p.name.toLowerCase().includes(value.toLowerCase()) ||
-        p.id.toString().startsWith(value)
+      const matches = products.filter(
+        (p) =>
+          p.name.toLowerCase().includes(value.toLowerCase()) ||
+          p.id.toString().startsWith(value)
       );
       setSuggestions(matches);
     } else {
@@ -52,7 +54,9 @@ const POS: React.FC = () => {
     e.preventDefault();
     if (!selectedProduct || quantity <= 0) return;
 
-    const existingIndex = cart.findIndex((item) => item.id === selectedProduct.id);
+    const existingIndex = cart.findIndex(
+      (item) => item.id === selectedProduct.id
+    );
 
     const updatedCart = [...cart];
 
@@ -72,12 +76,17 @@ const POS: React.FC = () => {
     setCart(cart.filter((item) => item.id !== id));
   };
 
-  const totalAmount = cart.reduce((total, item) => total + item.quantity * item.price, 0);
+  const totalAmount = cart.reduce(
+    (total, item) => total + item.quantity * item.price,
+    0
+  );
 
   // html de la página.
   return (
     <div className="d-flex flex-column min-vh-100">
-      <header><Navbar /></header>
+      <header>
+        <Navbar />
+      </header>
 
       <main className="content">
         <div className="container mt-5">
@@ -85,7 +94,9 @@ const POS: React.FC = () => {
 
           <form onSubmit={handleAddToCart}>
             <div className="mb-3 position-relative">
-              <label htmlFor="product" className="form-label">Producto</label>
+              <label htmlFor="product" className="form-label">
+                Producto
+              </label>
               <input
                 type="text"
                 className="form-control"
@@ -96,7 +107,10 @@ const POS: React.FC = () => {
                 autoComplete="off"
               />
               {suggestions.length > 0 && (
-                <ul className="list-group position-absolute w-100" style={{ zIndex: 1000 }}>
+                <ul
+                  className="list-group position-absolute w-100"
+                  style={{ zIndex: 1000 }}
+                >
                   {suggestions.map((product) => (
                     <li
                       key={product.id}
@@ -112,7 +126,9 @@ const POS: React.FC = () => {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="quantity" className="form-label">Cantidad</label>
+              <label htmlFor="quantity" className="form-label">
+                Cantidad
+              </label>
               <input
                 type="number"
                 className="form-control"
@@ -133,6 +149,60 @@ const POS: React.FC = () => {
             <div className="col-12">
               <h3>Detalles del Carrito</h3>
               <h4>Total: ${totalAmount.toFixed(2)}</h4>
+              <button
+                type="button"
+                onClick={() => {
+                  if (cart.length === 0) {
+                    alert("El carrito está vacío");
+                    return;
+                  }
+
+                  // Simula los valores requeridos por ahora
+                  const actionID = 1;
+                  const actionContextID = 1;
+                  const employeeID = 1; // Cambia esto si tienes un sistema de login
+                  const date = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+                  const products = cart.map((item) => ({
+                    productID: item.productID,                    
+                    quantity: item.quantity,
+                  }));
+
+                  fetch("/api/pos", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      actionID,
+                      actionContextID,
+                      employeeID,
+                      date,
+                      products,
+                    }),
+                  })
+                    .then((res) => res.json())
+                    .then((data) => {
+                      if (data.success) {
+                        alert("Se registró la venta correctamente");
+                        console.log(data.results);
+                      } else {
+                        alert(
+                          "Error al vender: " +
+                            (data.error || "Error desconocido")
+                        );
+                      }
+                    })
+                    .catch((err) => {
+                      console.error("Error al registrar la venta:", err);
+                      alert("Ocurrió un error al conectar con el servidor");
+                    });
+                }}
+                className="btn custom-green-btn"
+              >
+                Registrar Venta
+              </button>
+
               <table className="table table-striped">
                 <thead>
                   <tr>
@@ -149,7 +219,7 @@ const POS: React.FC = () => {
                       <td>{item.name}</td>
                       <td>{item.quantity}</td>
                       <td>${item.price}</td>
-                      <td>${(item.quantity * item.price)}</td>
+                      <td>${item.quantity * item.price}</td>
                       <td>
                         <button
                           className="btn btn-sm btn-danger"

@@ -116,3 +116,35 @@ BEGIN
     COMMIT;
 END$$
 DELIMITER ;
+
+-- Procedimiento para registrar la transacción de venta desde el POS --
+DELIMITER $$
+CREATE PROCEDURE logTransaction(
+	IN in_transactionTypeID INT,
+    IN in_transactionID INT,
+    IN in_actionID INT,
+    IN in_actionContextID INT,
+    IN in_employeeID INT,
+    IN in_date DATE,
+    -- POS --
+    IN in_quantity INT,
+    IN in_productID INT,
+    -- SYS --
+    IN in_entity INT,
+
+)
+BEGIN
+	DECLARE currentTransactionID INT;
+    -- 1. Insertamos el tipo de transacción actual en la tabla 'transactionHistory' --
+    INSERT INTO transactionHistory (typeID) VALUES (in_transactionType);
+    SET currentTransactionID = LAST_INSERT_ID();
+    -- 2. 
+    IF in_transactionType = 1 THEN
+		INSERT INTO posTransactions (transactionID, actionID, actionContextID, quantity, productID, employeeID, date)
+        VALUES (currentTransactionID, in_actionID, in_actionContextID, in_quantity, in_productID, in_employeeID, in_date);
+	ELSEIF in_transactionType = 2 THEN
+		INSERT INTO sysTransactions (transactionID, actionID, actionContextID, entityID, employeeID, date)
+        VALUES (currentTransactionID, in_actionID, in_actionContextID, in_entityID, in_employeeID, in_date );
+	END IF;
+END;
+DELIMITER ;
