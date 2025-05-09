@@ -1,4 +1,6 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+
 
 export const Footer: React.FC = () => {
   return (
@@ -11,6 +13,17 @@ export const Footer: React.FC = () => {
 };
 
 export const Navbar: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await fetch("http://localhost:3000/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    navigate("/"); // login
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark custom-green">
       <div className="container-fluid">
@@ -38,7 +51,9 @@ export const Navbar: React.FC = () => {
               <a className="nav-link" href="/contact">Contacto</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/logout">Cerrar Sesión</a>
+              <button className="nav-link btn btn-link text-white" onClick={handleLogout}>
+                Cerrar Sesión
+              </button>
             </li>
           </ul>
         </div>

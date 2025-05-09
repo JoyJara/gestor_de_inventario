@@ -4,41 +4,47 @@ import ProductForm from "../components/ProductForm";
 import { Footer, Navbar } from "../components/HTML";
 import { getCategoryIDByName, Category } from "../utils/inventoryUtils";
 import { createEmptyProduct, Product, EditableProduct } from "../utils/inventoryUtils";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const Inventory: React.FC = () => {
+  const isLoggedIn = useAuth();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<EditableProduct | null>(null);
   const [addingProduct, setAddingProduct] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  const fetchInventory = () => {
-    setLoading(true);
-    fetch("/api/inventory")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error al obtener el inventario:", err);
-        setLoading(false);
-      });
-  };
-
-  const fetchCategories = () => {
-    fetch("/api/inventory/categories")
-      .then((res) => res.json())
-      .then((data) => setCategories(data))
-      .catch((err) => {
-        console.error("Error al obtener las categorías:", err);
-      });
-  };
-
   useEffect(() => {
+    if (!isLoggedIn) return;
+
+    const fetchInventory = () => {
+      setLoading(true);
+      fetch("/api/inventory")
+        .then((res) => res.json())
+        .then((data) => {
+          setProducts(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error al obtener el inventario:", err);
+          setLoading(false);
+        });
+    };
+
+    const fetchCategories = () => {
+      fetch("/api/inventory/categories")
+        .then((res) => res.json())
+        .then((data) => setCategories(data))
+        .catch((err) => {
+          console.error("Error al obtener las categorías:", err);
+        });
+    };
+
     fetchInventory();
     fetchCategories();
-  }, []);
+  }, [isLoggedIn]);
 
   const handleDelete = (id: number) => {
     if (!confirm("¿Estás seguro de eliminar este producto?")) return;
@@ -49,7 +55,10 @@ const Inventory: React.FC = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          fetchInventory();
+          // Recargar el inventario después de eliminar
+          fetch("/api/inventory")
+            .then((res) => res.json())
+            .then((data) => setProducts(data));
         } else {
           alert("Error al eliminar: " + (data.error || "Error desconocido"));
         }
@@ -93,7 +102,9 @@ const Inventory: React.FC = () => {
       .then((data) => {
         if (data.success) {
           setEditingProduct(null);
-          fetchInventory();
+          fetch("/api/inventory")
+            .then((res) => res.json())
+            .then((data) => setProducts(data));
         } else {
           alert("Error al actualizar: " + (data.error || "Error desconocido"));
         }
@@ -108,8 +119,7 @@ const Inventory: React.FC = () => {
     e.preventDefault();
     if (!editingProduct) return;
 
-    const { Name, Category, Stock, Price, Barcode, Description } =
-      editingProduct;
+    const { Name, Category, Stock, Price, Barcode, Description } = editingProduct;
     const CategoryID = getCategoryIDByName(categories, Category);
 
     if (!CategoryID) {
@@ -136,7 +146,9 @@ const Inventory: React.FC = () => {
         if (data.success) {
           setEditingProduct(null);
           setAddingProduct(false);
-          fetchInventory();
+          fetch("/api/inventory")
+            .then((res) => res.json())
+            .then((data) => setProducts(data));
         } else {
           alert("Error al agregar: " + (data.error || "Error desconocido"));
         }
@@ -147,12 +159,15 @@ const Inventory: React.FC = () => {
       });
   };
 
+  // 🔐 Validación al final, dentro del return
+  if (isLoggedIn === null) return <p>Cargando...</p>;
+  if (!isLoggedIn) return <Navigate to="/" />;
+
   return (
     <div className="d-flex flex-column min-vh-100">
       <Navbar />
 
       <main className="content container mt-5 mb-5 flex-grow-1">
-        {/* Título y botón agregar */}
         <div className="d-flex align-items-center mb-4">
           <h1 className="mb-0">Inventario</h1>
           <button

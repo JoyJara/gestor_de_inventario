@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Footer, Navbar } from "../components/HTML";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 interface Product {
   id: number;
@@ -13,6 +15,8 @@ interface CartItem extends Product {
 }
 
 const POS: React.FC = () => {
+  const isLoggedIn = useAuth(); // 🔐 Hook de sesión
+
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState<Product[]>([]);
@@ -21,11 +25,13 @@ const POS: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
+    if (!isLoggedIn) return;
+
     fetch("/api/pos")
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error fetching products:", err));
-  }, []);
+  }, [isLoggedIn]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -81,7 +87,10 @@ const POS: React.FC = () => {
     0
   );
 
-  // html de la página.
+  // 🔐 Validación al final, dentro del return
+  if (isLoggedIn === null) return <p>Cargando...</p>;
+  if (!isLoggedIn) return <Navigate to="/" />;
+
   return (
     <div className="d-flex flex-column min-vh-100">
       <header>
@@ -144,7 +153,6 @@ const POS: React.FC = () => {
             </button>
           </form>
 
-          {/* Tabla del carrito */}
           <div className="row mt-4">
             <div className="col-12">
               <h3>Detalles del Carrito</h3>
@@ -157,14 +165,13 @@ const POS: React.FC = () => {
                     return;
                   }
 
-                  // Simula los valores requeridos por ahora
                   const actionID = 1;
                   const actionContextID = 1;
-                  const employeeID = 1; // Cambia esto si tienes un sistema de login
-                  const date = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+                  const employeeID = 1; // ⚠️ Cambia esto cuando integres sesión real
+                  const date = new Date().toISOString().slice(0, 10);
 
                   const products = cart.map((item) => ({
-                    productID: item.productID,                    
+                    productID: item.productID,
                     quantity: item.quantity,
                   }));
 
