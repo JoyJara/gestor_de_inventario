@@ -1,24 +1,67 @@
 // src/App.tsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Inventory from './pages/Inventory';
-import POS from './pages/POS';
-import Reports from './pages/Reports';
-import Users from './pages/Users';
-import Contact from './pages/Contact';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Inventory from "./pages/Inventory";
+import POS from "./pages/POS";
+import Reports from "./pages/Reports";
+import Users from "./pages/Users";
+import Contact from "./pages/Contact";
+import PrivateRoute from "./routes/PrivateRoute";
 
 const App: React.FC = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path='/dashboard' element={<Dashboard/>} />
-        <Route path='/inventory' element={<Inventory/>} />
-        <Route path='/pos' element={<POS/>} />
-        <Route path='/reports' element={<Reports/>} />
-        <Route path='/users' element={<Users/>} />
-        <Route path='/contact' element={<Contact/>} />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/inventory"
+          element={
+            <PrivateRoute>
+              <Inventory />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/pos"
+          element={
+            <PrivateRoute>
+              <POS />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <PrivateRoute>
+              <Reports />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <PrivateRoute>
+              <Users />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <PrivateRoute>
+              <Contact />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </Router>
   );

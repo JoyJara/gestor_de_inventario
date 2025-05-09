@@ -4,12 +4,8 @@ import ProductForm from "../components/ProductForm";
 import { Footer, Navbar } from "../components/HTML";
 import { getCategoryIDByName, Category } from "../utils/inventoryUtils";
 import { createEmptyProduct, Product, EditableProduct } from "../utils/inventoryUtils";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
 
 const Inventory: React.FC = () => {
-  const isLoggedIn = useAuth();
-
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<EditableProduct | null>(null);
@@ -17,8 +13,6 @@ const Inventory: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    if (!isLoggedIn) return;
-
     const fetchInventory = () => {
       setLoading(true);
       fetch("/api/inventory")
@@ -44,7 +38,7 @@ const Inventory: React.FC = () => {
 
     fetchInventory();
     fetchCategories();
-  }, [isLoggedIn]);
+  }, []); // ✅ Solo una vez al montar
 
   const handleDelete = (id: number) => {
     if (!confirm("¿Estás seguro de eliminar este producto?")) return;
@@ -55,7 +49,6 @@ const Inventory: React.FC = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          // Recargar el inventario después de eliminar
           fetch("/api/inventory")
             .then((res) => res.json())
             .then((data) => setProducts(data));
@@ -158,10 +151,6 @@ const Inventory: React.FC = () => {
         alert("Ocurrió un error en el servidor");
       });
   };
-
-  // 🔐 Validación al final, dentro del return
-  if (isLoggedIn === null) return <p>Cargando...</p>;
-  if (!isLoggedIn) return <Navigate to="/" />;
 
   return (
     <div className="d-flex flex-column min-vh-100">

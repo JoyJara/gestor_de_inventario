@@ -1,14 +1,8 @@
 import React from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Footer, Navbar } from "../components/HTML";
-import { useAuth } from "../hooks/useAuth";
 
 const Dashboard: React.FC = () => {
-  const isLoggedIn = useAuth();
-
-  if (isLoggedIn === null) return <p>Cargando...</p>; // espera la verificación
-  if (!isLoggedIn) return <Navigate to="/" />;   // redirige al login si no hay sesión
-
   return (
     <div className="d-flex flex-column min-vh-100">
       <header>
