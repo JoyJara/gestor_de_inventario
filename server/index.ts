@@ -41,24 +41,25 @@ app.use('/api/pos', posRoutes);
 const distPath = path.resolve(__dirname, 'dist');
 const indexHtmlPath = path.join(distPath, 'index.html');
 
+console.log('🌍 NODE_ENV:', process.env.NODE_ENV);
+console.log('📁 indexHtmlPath exists:', fs.existsSync(indexHtmlPath));
+console.log('📁 indexHtmlPath path:', indexHtmlPath);
+
 if (process.env.NODE_ENV === 'production' && fs.existsSync(indexHtmlPath)) {
+  console.log('✅ React detectado en producción, sirviendo dist/');
+
   app.use(express.static(distPath));
 
-  // Middleware para servir index.html en rutas no-API
   app.use((req, res, next) => {
-    if (req.path.startsWith('/api')) {
-      return next();
-    }
-
+    if (req.path.startsWith('/api')) return next();
     res.sendFile(indexHtmlPath, (err) => {
-      if (err) {
-        res.status(500).send(err);
-      }
+      if (err) res.status(500).send(err);
     });
   });
 } else {
   console.log('🛠️ Modo desarrollo - React no se está sirviendo desde Express.');
 }
+
 
 const PORT = 3000;
 app.listen(PORT, '0.0.0.0', () => {
