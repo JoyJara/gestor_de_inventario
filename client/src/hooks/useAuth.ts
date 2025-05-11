@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface AuthState {
   loggedIn: boolean | null;
@@ -16,7 +17,7 @@ export const useAuth = (): AuthState => {
   });
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/auth/check-session", {
+    fetch(`${API_URL}/api/auth/check-session`, {
       credentials: "include",
     })
       .then((res) => res.json())

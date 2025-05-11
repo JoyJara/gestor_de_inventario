@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const Footer: React.FC = () => {
   return (
@@ -17,7 +18,7 @@ export const Navbar: React.FC = () => {
   const { user } = useAuth(); // 👈 acceso al usuario con su rol
 
   const handleLogout = async () => {
-    await fetch("http://localhost:3000/api/auth/logout", {
+    await fetch(`${API_URL}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });

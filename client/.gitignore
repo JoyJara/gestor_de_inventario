@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Variables de entorno para dev y build.
+.env
+.env.local
