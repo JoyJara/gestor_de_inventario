@@ -35,6 +35,10 @@ export const LogSale = (req: Request, res: Response) => {
   InventoryDB.execute(sql, params, (err, results) => {
     if (err) {
       console.error("Error al registrar la venta", err);
+      if (err.sqlState === '45000') {
+        res.status(400).json({error: err.message});
+        return;
+      }
       res.status(500).json({ error: "Error en la base de datos" });
       return;
     }

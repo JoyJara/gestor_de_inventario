@@ -194,10 +194,7 @@ const POS: React.FC = () => {
                         alert("Se registró la venta correctamente");
                         console.log(data.results);
                       } else {
-                        alert(
-                          "Error al vender: " +
-                            (data.error || "Error desconocido")
-                        );
+                        alert(data.error || "Error desconocido");
                       }
                     })
                     .catch((err) => {
