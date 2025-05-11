@@ -13,8 +13,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'http://TU_IP_PUBLICA:5173',
-    'http://TU_DOMINIO.com'
+    'http://66.179.92.207:5173',
   ],
   credentials: true
 }));
