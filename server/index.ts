@@ -45,7 +45,7 @@ const indexHtmlPath = path.join(distPath, 'index.html');
 if (process.env.NODE_ENV === 'production' && fs.existsSync(indexHtmlPath)) {
   app.use(express.static(distPath));
 
-  app.get('*', (req, res) => {
+  app.get('/*', (req, res) => {
     res.sendFile(indexHtmlPath);
   });
 } else {
