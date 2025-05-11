@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useAuth } from "../hooks/useAuth";
 
 export const Footer: React.FC = () => {
   return (
@@ -14,6 +14,7 @@ export const Footer: React.FC = () => {
 
 export const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth(); // 👈 acceso al usuario con su rol
 
   const handleLogout = async () => {
     await fetch("http://localhost:3000/api/auth/logout", {
@@ -27,7 +28,9 @@ export const Navbar: React.FC = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark custom-green">
       <div className="container-fluid">
-        <a className="navbar-brand" href="#">Gestor de Inventario</a>
+        <a className="navbar-brand" href="#">
+          Gestor de Inventario
+        </a>
         <button
           className="navbar-toggler"
           type="button"
@@ -42,17 +45,29 @@ export const Navbar: React.FC = () => {
         <div className="collapse navbar-collapse" id="menu_navegacion">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <a className="nav-link" href="/dashboard">Inicio</a>
+              <a className="nav-link" href="/dashboard">
+                Inicio
+              </a>
             </li>
+
+            {/* 👇 Solo admins pueden ver este enlace */}
+            {user?.role === "admin" && (
+              <li className="nav-item">
+                <a className="nav-link" href="/users">
+                  Usuarios
+                </a>
+              </li>
+            )}
+
             <li className="nav-item">
-              <a className="nav-link" href="/users">Usuarios</a>
+              <a className="nav-link" href="/contact">
+                Contacto
+              </a>
             </li>
+
             <li className="nav-item">
-              <a className="nav-link" href="/contact">Contacto</a>
-            </li>
-            <li className="nav-item">
-              <button className="nav-link btn btn-link text-white" onClick={handleLogout}>
-                Cerrar Sesión
+              <button className="nav-link " onClick={handleLogout}>
+                Cerrar Sesión: {user?.username}
               </button>
             </li>
           </ul>

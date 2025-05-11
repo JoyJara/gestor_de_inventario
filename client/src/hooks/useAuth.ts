@@ -1,23 +1,35 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-export const useAuth = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+interface AuthState {
+  loggedIn: boolean | null;
+  user: {
+    id: number;
+    username: string;
+    role: string;
+  } | null;
+}
+
+export const useAuth = (): AuthState => {
+  const [auth, setAuth] = useState<AuthState>({
+    loggedIn: null,
+    user: null,
+  });
 
   useEffect(() => {
-    const check = async () => {
-      try {
-        const res = await fetch('http://localhost:3000/api/auth/check-session', {
-          credentials: 'include',
+    fetch("http://localhost:3000/api/auth/check-session", {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setAuth({
+          loggedIn: data.loggedIn,
+          user: data.user || null,
         });
-        const data = await res.json();
-        setIsLoggedIn(data.loggedIn);
-      } catch (err) {
-        setIsLoggedIn(false);
-      }
-    };
+      })
+      .catch(() => {
+        setAuth({ loggedIn: false, user: null });
+      });
+  }, []);
 
-    check();
-  }, []); // <- si aquí agregas dependencias, lo puedes forzar a recargar
-
-  return isLoggedIn;
+  return auth;
 };
