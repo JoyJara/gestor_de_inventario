@@ -38,15 +38,24 @@ app.use('/api/auth', authRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/pos', posRoutes);
 
-// 📁 Solo sirve React si está en modo producción y existe el archivo index.html
-const distPath = path.join(__dirname, 'dist');
+// Solo servir React si es producción y existe index.html
+const distPath = path.resolve(__dirname, 'dist');
 const indexHtmlPath = path.join(distPath, 'index.html');
 
 if (process.env.NODE_ENV === 'production' && fs.existsSync(indexHtmlPath)) {
   app.use(express.static(distPath));
 
-  app.get('/*', (req, res) => {
-    res.sendFile(indexHtmlPath);
+  // Middleware para servir index.html en rutas no-API
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+
+    res.sendFile(indexHtmlPath, (err) => {
+      if (err) {
+        res.status(500).send(err);
+      }
+    });
   });
 } else {
   console.log('🛠️ Modo desarrollo - React no se está sirviendo desde Express.');
