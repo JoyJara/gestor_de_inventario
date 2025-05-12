@@ -5,9 +5,9 @@ import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
 import POS from "./pages/POS";
 import Reports from "./pages/Reports";
-import Users from "./pages/Users";
 import Contact from "./pages/Contact";
 import PrivateRoute from "./routes/PrivateRoute";
+import Employees from "./pages/Employees";
 
 const App: React.FC = () => {
   return (
@@ -47,10 +47,10 @@ const App: React.FC = () => {
           }
         />
         <Route
-          path="/users"
+          path="/Employees"
           element={
             <PrivateRoute>
-              <Users />
+              <Employees />
             </PrivateRoute>
           }
         />

@@ -54,11 +54,17 @@ export const Navbar: React.FC = () => {
             {/* 👇 Solo admins pueden ver este enlace */}
             {user?.role === "admin" && (
               <li className="nav-item">
-                <a className="nav-link" href="/users">
+                <a className="nav-link" href="/employees">
                   Usuarios
                 </a>
               </li>
             )}
+
+            <li className="nav-item">
+              <a className="nav-link" href="/employees">
+                Usuarios
+              </a>
+            </li>
 
             <li className="nav-item">
               <a className="nav-link" href="/contact">

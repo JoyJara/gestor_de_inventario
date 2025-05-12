@@ -7,6 +7,7 @@ import fs from 'fs';
 import authRoutes from './routes/authRoutes';
 import inventoryRoutes from './routes/inventoryRoutes';
 import posRoutes from './routes/posRoutes';
+import employeesRoutes from './routes/employeesRoutes';
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use(session({
 app.use('/api/auth', authRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/pos', posRoutes);
+app.use('/api/employees', employeesRoutes)
 
 // Solo servir React si es producción y existe index.html
 const distPath = path.resolve(__dirname, 'dist');
