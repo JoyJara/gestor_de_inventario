@@ -3,12 +3,16 @@ import cors from 'cors';
 import session from 'express-session';
 import path from 'path';
 import fs from 'fs';
+import emailRoutes from "./routes/emailRoutes";
 
 import authRoutes from './routes/authRoutes';
 import inventoryRoutes from './routes/inventoryRoutes';
 import posRoutes from './routes/posRoutes';
 
+
+
 const app = express();
+
 
 app.use(cors({
   origin: [
@@ -36,6 +40,8 @@ app.use(session({
 app.use('/api/auth', authRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/pos', posRoutes);
+app.use("/api/email", emailRoutes);
+
 
 // Solo servir React si es producción y existe index.html
 const distPath = path.resolve(__dirname, 'dist');

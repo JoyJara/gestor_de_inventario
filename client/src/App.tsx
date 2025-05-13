@@ -8,6 +8,8 @@ import Reports from "./pages/Reports";
 import Users from "./pages/Users";
 import Contact from "./pages/Contact";
 import PrivateRoute from "./routes/PrivateRoute";
+import React from "react";
+
 
 const App: React.FC = () => {
   return (
