@@ -62,7 +62,7 @@ export const Navbar: React.FC = () => {
 
             <li className="nav-item">
               <a className="nav-link" href="/employees">
-                Usuarios
+                Empleados
               </a>
             </li>
 

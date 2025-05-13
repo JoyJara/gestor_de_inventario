@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import EmployeesTable from "../components/EmployeesTable";
+import UserForm from "../components/UserForm";
 import { Footer, Navbar } from "../components/HTML";
 
 interface Employee {
@@ -10,12 +11,25 @@ interface Employee {
   User: string;
   Status: number;
   Hired: string;
+  Password?: string;
 }
 
+const createEmptyUser = (): Employee => ({
+  ID: 0,
+  Name: "",
+  Role: 1,
+  Phone: "",
+  User: "",
+  Status: 1,
+  Hired: new Date().toISOString().slice(0, 10),
+  Password: "",
+});
 
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState<Employee | null>(null);
+  const [addingUser, setAddingUser] = useState(false);
 
   useEffect(() => {
     const fetchEmployees = () => {
@@ -56,8 +70,49 @@ const Employees: React.FC = () => {
   };
 
   const handleEdit = (employee: Employee) => {
-    console.log("Editar empleado:", employee);
-    // Aquí podrías abrir un formulario de edición similar a ProductForm
+    setEditingUser(employee);
+    setAddingUser(false);
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+
+    const method = addingUser ? "POST" : "PUT";
+    const url = "/api/employees";
+
+    const body = JSON.stringify({
+      employeeID: editingUser.ID,
+      name: editingUser.Name,
+      role: editingUser.Role,
+      phone: editingUser.Phone,
+      username: editingUser.User,
+      status: editingUser.Status,
+      hiringDate: editingUser.Hired.slice(0, 10),
+      ...(addingUser && { password: editingUser.Password || "" }),
+    });
+
+    fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setAddingUser(false);
+          setEditingUser(null);
+          fetch("/api/employees")
+            .then((res) => res.json())
+            .then((data) => setEmployees(data));
+        } else {
+          alert("Error: " + (data.error || "Error desconocido"));
+        }
+      })
+      .catch((err) => {
+        console.error("Error al enviar el formulario:", err);
+        alert("Ocurrió un error en el servidor");
+      });
   };
 
   return (
@@ -69,7 +124,10 @@ const Employees: React.FC = () => {
           <h1 className="mb-0">Empleados</h1>
           <button
             className="btn custom-green-btn ms-3"
-            onClick={() => {console.log('agregar usuario xd')}}
+            onClick={() => {
+              setEditingUser(createEmptyUser());
+              setAddingUser(true);
+            }}
           >
             Agregar Usuario
           </button>
@@ -82,6 +140,19 @@ const Employees: React.FC = () => {
             employees={employees}
             onEdit={handleEdit}
             onDelete={handleDelete}
+          />
+        )}
+
+        {editingUser && (
+          <UserForm
+            user={editingUser}
+            onChange={setEditingUser}
+            onSubmit={handleFormSubmit}
+            onCancel={() => {
+              setEditingUser(null);
+              setAddingUser(false);
+            }}
+            mode={addingUser ? "add" : "edit"}
           />
         )}
       </main>

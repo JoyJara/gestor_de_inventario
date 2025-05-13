@@ -15,7 +15,7 @@ interface CartItem extends Product {
 }
 
 const POS: React.FC = () => {
-  const isLoggedIn = useAuth(); // 🔐 Hook de sesión
+  const isLoggedIn = useAuth(); // Hook de sesión
 
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -167,7 +167,7 @@ const POS: React.FC = () => {
 
                   const actionID = 1;
                   const actionContextID = 1;
-                  const employeeID = 1; // ⚠️ Cambia esto cuando integres sesión real
+                  const employeeID = 1; // provicional.
                   const date = new Date().toISOString().slice(0, 10);
 
                   const products = cart.map((item) => ({
