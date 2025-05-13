@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { InventoryDB } from "../db/connection";
 import bcrypt from "bcrypt";
 
-// Controlador para obtener la vista de los empleados.
+// Obtener la vista de empleados
 export const GetEmployees = (req: Request, res: Response) => {
   InventoryDB.query(`SELECT * FROM employeesView`, (err, results) => {
     if (err) {
@@ -12,15 +12,22 @@ export const GetEmployees = (req: Request, res: Response) => {
   });
 };
 
-// Controlador para agregar un nuevo empleado
+// Agregar un nuevo empleado (con historial)
 export const AddEmployee = async (req: Request, res: Response) => {
   try {
     const { name, phone, role, hiringDate, username, password, status } =
       req.body;
+    const executorID = req.session?.user?.id;
+
+    if (!executorID || isNaN(executorID)) {
+      res
+        .status(401)
+        .json({ success: false, error: "Empleado no autenticado" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const sql = `CALL inventario.addUser(?, ?, ?, ?, ?, ?, ?)`;
+    const sql = `CALL inventario.addUser(?, ?, ?, ?, ?, ?, ?, ?)`;
     const params = [
       name,
       phone,
@@ -29,6 +36,7 @@ export const AddEmployee = async (req: Request, res: Response) => {
       username,
       hashedPassword,
       parseInt(status),
+      executorID,
     ];
 
     InventoryDB.query(sql, params, (err, results) => {
@@ -43,10 +51,15 @@ export const AddEmployee = async (req: Request, res: Response) => {
   }
 };
 
-// Controlador para editar un empleado existente.
+// Editar empleado existente (con historial)
 export const EditEmployee = (req: Request, res: Response) => {
   const { employeeID, name, phone, role, hiringDate, username, status } =
     req.body;
+  const executorID = req.session?.user?.id;
+
+  if (!executorID || isNaN(executorID)) {
+    res.status(401).json({ success: false, error: "Empleado no autenticado" });
+  }
 
   if (
     !employeeID ||
@@ -63,7 +76,7 @@ export const EditEmployee = (req: Request, res: Response) => {
     });
   }
 
-  const sql = `CALL inventario.editUser(?, ?, ?, ?, ?, ?, ?)`;
+  const sql = `CALL inventario.editUser(?, ?, ?, ?, ?, ?, ?, ?)`;
   const params = [
     employeeID,
     name,
@@ -72,6 +85,7 @@ export const EditEmployee = (req: Request, res: Response) => {
     hiringDate,
     username,
     parseInt(status),
+    executorID,
   ];
 
   InventoryDB.query(sql, params, (err, results) => {
@@ -84,9 +98,14 @@ export const EditEmployee = (req: Request, res: Response) => {
   });
 };
 
-// Controlador para eliminar un empleado.
+// Eliminar empleado (con historial)
 export const DeleteEmployee = (req: Request, res: Response) => {
   const { id } = req.params;
+  const executorID = req.session?.user?.id;
+
+  if (!executorID || isNaN(executorID)) {
+    res.status(401).json({ success: false, error: "Empleado no autenticado" });
+  }
 
   if (!id) {
     res.status(400).json({
@@ -95,9 +114,10 @@ export const DeleteEmployee = (req: Request, res: Response) => {
     });
   }
 
-  const sql = `CALL inventario.deleteUser(?)`;
+  const sql = `CALL inventario.deleteUser(?, ?)`;
+  const params = [parseInt(id), executorID];
 
-  InventoryDB.query(sql, [parseInt(id)], (err, results) => {
+  InventoryDB.query(sql, params, (err, results) => {
     if (err) {
       console.error("Error al eliminar el empleado:", err);
       return res.status(500).json({ success: false, error: err.message });

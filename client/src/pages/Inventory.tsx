@@ -3,19 +3,25 @@ import InventoryTable from "../components/InventoryTable";
 import ProductForm from "../components/ProductForm";
 import { Footer, Navbar } from "../components/HTML";
 import { getCategoryIDByName, Category } from "../utils/inventoryUtils";
-import { createEmptyProduct, Product, EditableProduct } from "../utils/inventoryUtils";
+import {
+  createEmptyProduct,
+  Product,
+  EditableProduct,
+} from "../utils/inventoryUtils";
 
 const Inventory: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingProduct, setEditingProduct] = useState<EditableProduct | null>(null);
+  const [editingProduct, setEditingProduct] = useState<EditableProduct | null>(
+    null
+  );
   const [addingProduct, setAddingProduct] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     const fetchInventory = () => {
       setLoading(true);
-      fetch("/api/inventory")
+      fetch("/api/inventory", { credentials: "include" })
         .then((res) => res.json())
         .then((data) => {
           setProducts(data);
@@ -28,7 +34,7 @@ const Inventory: React.FC = () => {
     };
 
     const fetchCategories = () => {
-      fetch("/api/inventory/categories")
+      fetch("/api/inventory/categories", { credentials: "include" })
         .then((res) => res.json())
         .then((data) => setCategories(data))
         .catch((err) => {
@@ -38,18 +44,19 @@ const Inventory: React.FC = () => {
 
     fetchInventory();
     fetchCategories();
-  }, []); // ✅ Solo una vez al montar
+  }, []);
 
   const handleDelete = (id: number) => {
     if (!confirm("¿Estás seguro de eliminar este producto?")) return;
 
     fetch(`/api/inventory/${id}`, {
       method: "DELETE",
+      credentials: "include",
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          fetch("/api/inventory")
+          fetch("/api/inventory", { credentials: "include" })
             .then((res) => res.json())
             .then((data) => setProducts(data));
         } else {
@@ -84,18 +91,20 @@ const Inventory: React.FC = () => {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
+      credentials: "include",
       body: new URLSearchParams({
         Producto: Name,
         Categoria: CategoryID.toString(),
         Precio: Price.toString(),
         Stock: Stock.toString(),
+        
       }),
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
           setEditingProduct(null);
-          fetch("/api/inventory")
+          fetch("/api/inventory", { credentials: "include" })
             .then((res) => res.json())
             .then((data) => setProducts(data));
         } else {
@@ -112,7 +121,8 @@ const Inventory: React.FC = () => {
     e.preventDefault();
     if (!editingProduct) return;
 
-    const { Name, Category, Stock, Price, Barcode, Description } = editingProduct;
+    const { Name, Category, Stock, Price, Barcode, Description } =
+      editingProduct;
     const CategoryID = getCategoryIDByName(categories, Category);
 
     if (!CategoryID) {
@@ -125,6 +135,7 @@ const Inventory: React.FC = () => {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
+      credentials: "include",
       body: new URLSearchParams({
         Producto: Name,
         Categoria: CategoryID.toString(),
@@ -139,7 +150,7 @@ const Inventory: React.FC = () => {
         if (data.success) {
           setEditingProduct(null);
           setAddingProduct(false);
-          fetch("/api/inventory")
+          fetch("/api/inventory", { credentials: "include" })
             .then((res) => res.json())
             .then((data) => setProducts(data));
         } else {

@@ -27,11 +27,13 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false,
+    secure: false,         // no usamos https
     httpOnly: true,
-    maxAge: 1000 * 60 * 60
+    sameSite: 'lax',       // evita problemas de cookies bloqueadas
+    maxAge: 1000 * 60 * 60 // 1 hora
   }
 }));
+
 
 // Rutas API
 app.use('/api/auth', authRoutes);

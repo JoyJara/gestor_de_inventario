@@ -17,7 +17,7 @@ export const loginUser = (req: Request, res: Response) => {
 
     // Guardar datos en sesión
     req.session.user = {
-      id: employee.id,
+      id: employee.employeeID,
       username: employee.username,
       role: employee.role
     };

@@ -1,89 +1,113 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { InventoryDB } from "../db/connection";
 
-// Controlador para eliminar un producto por su ID.
-export const DeleteProduct = (req: Request, res: Response) => {
-  const ProductID = req.params.id;
-  const DeleteProduct = `CALL inventario.deleteProduct(?)`;
-
-  InventoryDB.query(DeleteProduct, [ProductID], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: "Error al eliminar el producto" });
-    }
-    return res.json({
-      success: true,
-      message: "Producto eliminado correctamente.",
-      results,
-    });
+// Obtener todos los productos desde la vista
+export const GetInventory = (req: Request, res: Response) => {
+  InventoryDB.query(`SELECT * FROM inventoryView`, (err, results) => {
+    if (err) return res.status(500).send("Error en el servidor.");
+    res.json(results);
   });
 };
 
-// Controlador para editar la información de un producto.
-export const EditProduct = (req: Request, res: Response) => {
-  const ProductID = req.params.id;
-  const EditProduct = `CALL inventario.editProduct(?, ?, ?, ?, ?)`;
-  const { Producto, Categoria, Precio, Stock } = req.body;
+// Obtener las categorías disponibles
+export const GetCategories = (req: Request, res: Response) => {
+  InventoryDB.query(
+    `SELECT categoryID AS id, name FROM categories ORDER BY name`,
+    (err, results) => {
+      if (err)
+        return res.status(500).json({ error: "Error al obtener categorías" });
+      res.json(results);
+    }
+  );
+};
 
-  if (!Producto || !Categoria || !Precio || !Stock) {
-    //return res.status(400).json({error: 'Faltan campos.'});
+// Agregar un nuevo producto con logging
+export const AddProduct = (req: Request, res: Response) => {
+  const { Producto, CodigoBarras, Categoria, Descripcion, Stock, Precio } = req.body;
+
+  const employeeID = req.session?.user?.id;
+  if (!employeeID || isNaN(employeeID)) {
+    res.status(401).json({ success: false, error: "Empleado no autenticado" });
+    return;
   }
 
   InventoryDB.query(
-    EditProduct,
-    [ProductID, Producto, Categoria, Precio, Stock],
+    "CALL addProduct(?, ?, ?, ?, ?, ?, ?)",
+    [Producto, CodigoBarras, Categoria, Descripcion, Stock, Precio, employeeID],
     (err, results) => {
       if (err) {
-        console.error("Error al actualizar el producto:", err);
-        return res.status(500).json({ error: "Error al actualizar." });
+        console.error("Error al agregar producto:", err);
+        res.status(500).json({ success: false, error: err.message });
+        return;
       }
-      return res.json({
+
+      res.json({
         success: true,
-        message: "Información del producto actualizada correctamente",
+        message: "Se agregó el producto correctamente",
         results,
       });
     }
   );
 };
 
-// Controlador para obtener la vista del inventario.
-export const GetInventory = (req: Request, res: Response) => {
-  InventoryDB.query(`SELECT * FROM inventoryView`, (err, results) => {
-    if (err) {
-      return res.status(500).send("Error en el servidor.");
-    }
-    res.json(results);
-  });
-};
 
-// Controlador para obtener las categorias.
-export const GetCategories = (req: Request, res: Response) => {
+// Editar producto con logging
+export const EditProduct = (req: Request, res: Response) => {
+  const productID = req.params.id;
+  const { Producto, Categoria, Precio, Stock } = req.body;
+  const employeeID = req.session?.user?.id;
+
+  if (!employeeID || isNaN(employeeID)) {
+    console.log(employeeID)
+    res.status(401).json({ success: false, error: "Empleado no autenticado" });
+    return;
+  }
+
   InventoryDB.query(
-    `SELECT categoryID AS id, name FROM categories ORDER BY name`,
+    "CALL editProduct(?, ?, ?, ?, ?, ?)",
+    [productID, Producto, Categoria, Precio, Stock, employeeID],
     (err, results) => {
       if (err) {
-        //return next(err);
+        console.error("Error al editar producto:", err);
+        return res
+          .status(500)
+          .json({ success: false, error: "Error al editar" });
       }
-      res.json(results);
+
+      res.json({
+        success: true,
+        message: "Producto actualizado correctamente",
+        results,
+      });
     }
   );
 };
 
-// Controlador para agregar un producto nuevo.
-export const AddProduct = (req: Request, res: Response) => {
-  const AddProduct = `CALL addProduct(?, ?, ?, ?, ?, ?)`;
-  const { Producto, Categoria, Precio, Stock, CodigoBarras, Descripcion } =
-    req.body;
+// Eliminar producto con logging
+export const DeleteProduct = (req: Request, res: Response) => {
+  const productID = req.params.id;
+  const employeeID = req.session?.user?.id;
+
+  if (!employeeID || isNaN(employeeID)) {
+    console.log(employeeID)
+    res.status(401).json({ success: false, error: "Empleado no autenticado" });
+    return;
+  }
+
   InventoryDB.query(
-    AddProduct,
-    [Producto, CodigoBarras, Categoria, Descripcion, Stock, Precio ],
+    "CALL deleteProduct(?, ?)",
+    [productID, employeeID],
     (err, results) => {
       if (err) {
-        console.error("Error al agregar el nuevo producto.", err);
-        return res.status(500).json({ success: false, error: err.message });
+        console.error("Error al eliminar producto:", err);
+        return res
+          .status(500)
+          .json({ success: false, error: "Error al eliminar" });
       }
-      return res.json({
+
+      res.json({
         success: true,
-        message: "Se agrego el nuevo producto correctamente.",
+        message: "Producto eliminado correctamente",
         results,
       });
     }
