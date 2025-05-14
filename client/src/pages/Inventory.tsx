@@ -232,15 +232,6 @@ const Inventory: React.FC = () => {
               <input
                 type="text"
                 className="form-control"
-                placeholder="ID"
-                value={filters.id}
-                onChange={(e) => setFilters({ ...filters, id: e.target.value })}
-              />
-            </div>
-            <div className="col-md-2 mb-2">
-              <input
-                type="text"
-                className="form-control"
                 placeholder="Código de barras"
                 value={filters.barcode}
                 onChange={(e) =>
@@ -249,6 +240,16 @@ const Inventory: React.FC = () => {
               />
             </div>
             <div className="col-md-2 mb-2">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="ID"
+                value={filters.id}
+                onChange={(e) => setFilters({ ...filters, id: e.target.value })}
+              />
+            </div>
+
+            <div className="col-md-2 mb-2">
               <select
                 className="form-select"
                 value={filters.category}
@@ -256,7 +257,7 @@ const Inventory: React.FC = () => {
                   setFilters({ ...filters, category: e.target.value })
                 }
               >
-                <option value="">Todas las categorías</option>
+                <option value="">Categoría</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.name}>
                     {cat.name}
