@@ -114,13 +114,14 @@ export const DeleteProduct = (req: Request, res: Response) => {
   );
 };
 
-// Agregar únicamente stock (versión móvil).
+// Agregar únicamente stock.
 export const AddStock = (req: Request, res: Response) => {
-  const { productID, cantidad } = req.body;
+  const { quantity } = req.body;
+  const productID = req.params.id;
 
-  const sql = `UPDATE inventory SET stock = stock + ? WHERE productID = ?`;
+  const query = `CALL inventario.addStock(?, ?)`;
 
-  InventoryDB.query(sql, [cantidad, productID], (err, results) => {
+  InventoryDB.query(query, [productID, quantity], (err, results) => {
     if (err) {
       console.error("Error al incrementar stock:", err);
       return res.status(500).json({ success: false, error: err.message });

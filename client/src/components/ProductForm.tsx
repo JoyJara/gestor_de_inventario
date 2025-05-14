@@ -22,6 +22,8 @@ interface Props {
   onCancel: () => void;
   categories: Category[];
   mode: "edit" | "add";
+  stockToAdd?: number;
+  setStockToAdd?: (value: number) => void;
 }
 
 const ProductForm: React.FC<Props> = ({
@@ -31,6 +33,8 @@ const ProductForm: React.FC<Props> = ({
   onCancel,
   categories,
   mode,
+  stockToAdd = 0,
+  setStockToAdd = () => {},
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     const message =
@@ -38,6 +42,10 @@ const ProductForm: React.FC<Props> = ({
         ? "¿Estás seguro de agregar este producto?"
         : "¿Deseas guardar los cambios del producto?";
     if (window.confirm(message)) {
+      if (mode === "edit" && stockToAdd > 0) {
+        const newStock = (Number(product.Stock) || 0) + stockToAdd;
+        onChange({ ...product, Stock: newStock });
+      }
       onSubmit(e);
     } else {
       e.preventDefault();
@@ -64,6 +72,7 @@ const ProductForm: React.FC<Props> = ({
               ></button>
             </div>
             <div className="modal-body">
+              {/* Nombre */}
               <div className="mb-3">
                 <label className="form-label">Nombre</label>
                 <input
@@ -76,6 +85,8 @@ const ProductForm: React.FC<Props> = ({
                   required
                 />
               </div>
+
+              {/* Categoría */}
               <div className="mb-3">
                 <label className="form-label">Categoría</label>
                 <select
@@ -94,8 +105,10 @@ const ProductForm: React.FC<Props> = ({
                   ))}
                 </select>
               </div>
+
+              {/* Stock actual */}
               <div className="mb-3">
-                <label className="form-label">Stock</label>
+                <label className="form-label">Stock actual</label>
                 <input
                   type="number"
                   className="form-control"
@@ -110,6 +123,27 @@ const ProductForm: React.FC<Props> = ({
                   required
                 />
               </div>
+
+              {/* Sumar stock en edición */}
+              {mode === "edit" && (
+                <div className="mb-3">
+                  <label className="form-label">Sumar stock</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    min={0}
+                    value={stockToAdd}
+                    onChange={(e) =>
+                      setStockToAdd(
+                        e.target.value === "" ? 0 : Number(e.target.value)
+                      )
+                    }
+                    placeholder="Cantidad a agregar"
+                  />
+                </div>
+              )}
+
+              {/* Precio */}
               <div className="mb-3">
                 <label className="form-label">Precio</label>
                 <input
@@ -128,6 +162,7 @@ const ProductForm: React.FC<Props> = ({
                 />
               </div>
 
+              {/* Solo en modo agregar */}
               {mode === "add" && (
                 <>
                   <div className="mb-3">
@@ -142,17 +177,13 @@ const ProductForm: React.FC<Props> = ({
                       required
                     />
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Descripción</label>
                     <textarea
                       className="form-control"
                       value={product.Description || ""}
                       onChange={(e) =>
-                        onChange({
-                          ...product,
-                          Description: e.target.value,
-                        })
+                        onChange({ ...product, Description: e.target.value })
                       }
                       required
                     ></textarea>
@@ -160,11 +191,11 @@ const ProductForm: React.FC<Props> = ({
                 </>
               )}
             </div>
+
             <div className="modal-footer">
               <button type="submit" className="btn btn-primary">
                 {mode === "add" ? "Agregar" : "Guardar"}
               </button>
-
               <button
                 type="button"
                 className="btn btn-secondary"

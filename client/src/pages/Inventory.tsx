@@ -17,6 +17,7 @@ const Inventory: React.FC = () => {
   );
   const [addingProduct, setAddingProduct] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [stockToAdd, setStockToAdd] = useState<number>(0);
 
   const [filters, setFilters] = useState({
     name: "",
@@ -105,9 +106,10 @@ const Inventory: React.FC = () => {
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setAddingProduct(false);
+    setStockToAdd(0);
   };
 
-  const handleEditSubmit = (e: React.FormEvent) => {
+  const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
 
@@ -119,34 +121,56 @@ const Inventory: React.FC = () => {
       return;
     }
 
-    fetch(`/api/inventory/${ID}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      credentials: "include",
-      body: new URLSearchParams({
-        Producto: Name,
-        Categoria: CategoryID.toString(),
-        Precio: Price.toString(),
-        Stock: Stock.toString(),
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setEditingProduct(null);
-          fetch("/api/inventory", { credentials: "include" })
-            .then((res) => res.json())
-            .then((data) => setProducts(data));
-        } else {
-          alert("Error al actualizar: " + (data.error || "Error desconocido"));
-        }
-      })
-      .catch((err) => {
-        console.error("Error al actualizar el producto:", err);
-        alert("Ocurrió un error en el servidor");
+    try {
+      const res = await fetch(`/api/inventory/${ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        credentials: "include",
+        body: new URLSearchParams({
+          Producto: Name,
+          Categoria: CategoryID.toString(),
+          Precio: Price.toString(),
+          Stock: Stock.toString(),
+        }),
       });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        alert("Error al actualizar: " + (data.error || "Error desconocido"));
+        return;
+      }
+
+      // Llama al SP si hay stock adicional
+      if (stockToAdd > 0) {
+        const stockRes = await fetch(`/api/inventory/stock/${ID}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ quantity: stockToAdd }),
+        });
+
+        const stockData = await stockRes.json();
+
+        if (!stockData.success) {
+          alert("Error al actualizar el stock adicional: " + stockData.error);
+        }
+      }
+
+      setEditingProduct(null);
+      setStockToAdd(0);
+
+      const updated = await fetch("/api/inventory", { credentials: "include" });
+      const updatedData = await updated.json();
+      setProducts(updatedData);
+    } catch (err) {
+      console.error("Error al actualizar el producto:", err);
+      alert("Ocurrió un error en el servidor");
+    }
   };
 
   const handleAddSubmit = (e: React.FormEvent) => {
@@ -207,6 +231,7 @@ const Inventory: React.FC = () => {
             onClick={() => {
               setEditingProduct(createEmptyProduct());
               setAddingProduct(true);
+              setStockToAdd(0);
             }}
           >
             Agregar Producto
@@ -327,9 +352,12 @@ const Inventory: React.FC = () => {
             onCancel={() => {
               setEditingProduct(null);
               setAddingProduct(false);
+              setStockToAdd(0);
             }}
             categories={categories}
             mode={addingProduct ? "add" : "edit"}
+            stockToAdd={stockToAdd}
+            setStockToAdd={setStockToAdd}
           />
         )}
       </main>
