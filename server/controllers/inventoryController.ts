@@ -23,7 +23,8 @@ export const GetCategories = (req: Request, res: Response) => {
 
 // Agregar un nuevo producto con logging
 export const AddProduct = (req: Request, res: Response) => {
-  const { Producto, CodigoBarras, Categoria, Descripcion, Stock, Precio } = req.body;
+  const { Producto, CodigoBarras, Categoria, Descripcion, Stock, Precio } =
+    req.body;
 
   const employeeID = req.session?.user?.id;
   if (!employeeID || isNaN(employeeID)) {
@@ -50,7 +51,6 @@ export const AddProduct = (req: Request, res: Response) => {
   );
 };
 
-
 // Editar producto con logging
 export const EditProduct = (req: Request, res: Response) => {
   const productID = req.params.id;
@@ -58,7 +58,7 @@ export const EditProduct = (req: Request, res: Response) => {
   const employeeID = req.session?.user?.id;
 
   if (!employeeID || isNaN(employeeID)) {
-    console.log(employeeID)
+    console.log(employeeID);
     res.status(401).json({ success: false, error: "Empleado no autenticado" });
     return;
   }
@@ -89,7 +89,7 @@ export const DeleteProduct = (req: Request, res: Response) => {
   const employeeID = req.session?.user?.id;
 
   if (!employeeID || isNaN(employeeID)) {
-    console.log(employeeID)
+    console.log(employeeID);
     res.status(401).json({ success: false, error: "Empleado no autenticado" });
     return;
   }
@@ -112,4 +112,20 @@ export const DeleteProduct = (req: Request, res: Response) => {
       });
     }
   );
+};
+
+// Agregar únicamente stock (versión móvil).
+export const AddStock = (req: Request, res: Response) => {
+  const { productID, cantidad } = req.body;
+
+  const sql = `UPDATE inventory SET stock = stock + ? WHERE productID = ?`;
+
+  InventoryDB.query(sql, [cantidad, productID], (err, results) => {
+    if (err) {
+      console.error("Error al incrementar stock:", err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+
+    res.json({ success: true, message: "Stock actualizado correctamente" });
+  });
 };
