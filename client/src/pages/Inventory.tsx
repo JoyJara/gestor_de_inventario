@@ -18,6 +18,15 @@ const Inventory: React.FC = () => {
   const [addingProduct, setAddingProduct] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
+  const [filters, setFilters] = useState({
+    name: "",
+    id: "",
+    barcode: "",
+    category: "",
+    priceMin: "",
+    priceMax: "",
+  });
+
   useEffect(() => {
     const fetchInventory = () => {
       setLoading(true);
@@ -45,6 +54,30 @@ const Inventory: React.FC = () => {
     fetchInventory();
     fetchCategories();
   }, []);
+
+  const filteredProducts = products.filter((product) => {
+    const matchName =
+      filters.name === "" ||
+      product.Name.toLowerCase().includes(filters.name.toLowerCase());
+    const matchID =
+      filters.id === "" || product.ID.toString().includes(filters.id);
+    const matchBarcode =
+      filters.barcode === "" || product.Barcode?.includes(filters.barcode);
+    const matchCategory =
+      filters.category === "" || product.Category === filters.category;
+    const matchPriceMin =
+      filters.priceMin === "" || product.Price >= parseFloat(filters.priceMin);
+    const matchPriceMax =
+      filters.priceMax === "" || product.Price <= parseFloat(filters.priceMax);
+    return (
+      matchName &&
+      matchID &&
+      matchBarcode &&
+      matchCategory &&
+      matchPriceMin &&
+      matchPriceMax
+    );
+  });
 
   const handleDelete = (id: number) => {
     if (!confirm("¿Estás seguro de eliminar este producto?")) return;
@@ -97,7 +130,6 @@ const Inventory: React.FC = () => {
         Categoria: CategoryID.toString(),
         Precio: Price.toString(),
         Stock: Stock.toString(),
-        
       }),
     })
       .then((res) => res.json())
@@ -181,16 +213,111 @@ const Inventory: React.FC = () => {
           </button>
         </div>
 
+        {/* Filtros */}
+        <div className="card p-3 mb-4">
+          <h5>Filtrar Productos</h5>
+          <div className="row">
+            <div className="col-md-2 mb-2">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Nombre"
+                value={filters.name}
+                onChange={(e) =>
+                  setFilters({ ...filters, name: e.target.value })
+                }
+              />
+            </div>
+            <div className="col-md-2 mb-2">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="ID"
+                value={filters.id}
+                onChange={(e) => setFilters({ ...filters, id: e.target.value })}
+              />
+            </div>
+            <div className="col-md-2 mb-2">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Código de barras"
+                value={filters.barcode}
+                onChange={(e) =>
+                  setFilters({ ...filters, barcode: e.target.value })
+                }
+              />
+            </div>
+            <div className="col-md-2 mb-2">
+              <select
+                className="form-select"
+                value={filters.category}
+                onChange={(e) =>
+                  setFilters({ ...filters, category: e.target.value })
+                }
+              >
+                <option value="">Todas las categorías</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.name}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-2 mb-2">
+              <input
+                type="number"
+                className="form-control"
+                placeholder="Precio mín."
+                value={filters.priceMin}
+                onChange={(e) =>
+                  setFilters({ ...filters, priceMin: e.target.value })
+                }
+              />
+            </div>
+            <div className="col-md-2 mb-2">
+              <input
+                type="number"
+                className="form-control"
+                placeholder="Precio máx."
+                value={filters.priceMax}
+                onChange={(e) =>
+                  setFilters({ ...filters, priceMax: e.target.value })
+                }
+              />
+            </div>
+            <div className="col-md-12 mt-2">
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() =>
+                  setFilters({
+                    name: "",
+                    id: "",
+                    barcode: "",
+                    category: "",
+                    priceMin: "",
+                    priceMax: "",
+                  })
+                }
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabla */}
         {loading ? (
           <p>Cargando productos...</p>
         ) : (
           <InventoryTable
-            products={products}
+            products={filteredProducts}
             onEdit={handleEdit}
             onDelete={handleDelete}
           />
         )}
 
+        {/* Formulario */}
         {editingProduct && (
           <ProductForm
             product={editingProduct}

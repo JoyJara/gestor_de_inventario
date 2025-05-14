@@ -16,12 +16,12 @@ const Dashboard: React.FC = () => {
           <div className="col-md-4">
             <div className="card text-center mb-3">
               <div className="card-body">
-                <h5 className="card-title">Ventas</h5>
+                <h5 className="card-title">Punto de Venta</h5>
                 <p className="card-text">
-                  Accede al punto de venta y realiza transacciones.
+                  Realiza ventas, devoluciones y más.
                 </p>
                 <Link to="/pos" className="btn btn-outline-success">
-                  Ir a Ventas
+                  Ir a POS
                 </Link>
               </div>
             </div>
@@ -54,6 +54,21 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           </div>
+
+          <div className="col-md-4">
+            <div className="card text-center mb-3">
+              <div className="card-body">
+                <h5 className="card-title">Empleados</h5>
+                <p className="card-text">
+                  Visualiza y administra las cuentas de los empleados.
+                </p>
+                <Link to="/employees" className="btn btn-outline-success">
+                  Ir a Empleados
+                </Link>
+              </div>
+            </div>
+          </div>
+
         </div>
       </main>
 

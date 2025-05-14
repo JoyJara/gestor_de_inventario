@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Footer, Navbar } from "../components/HTML";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+// @ts-ignore
+import * as bootstrap from "bootstrap";
 
 interface Product {
   id: number;
@@ -15,14 +17,18 @@ interface CartItem extends Product {
 }
 
 const POS: React.FC = () => {
-  const isLoggedIn = useAuth(); // Hook de sesión
+  const isLoggedIn = useAuth();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [quantity, setQuantity] = useState<number>(0);
+  const [quantity, setQuantity] = useState<string>("");
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isReturn, setIsReturn] = useState(false);
+
+  const toggleButtonRef = useRef<HTMLButtonElement | null>(null);
+  const tooltipInstance = useRef<any>(null);
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -32,6 +38,23 @@ const POS: React.FC = () => {
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error fetching products:", err));
   }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (toggleButtonRef.current) {
+      if (tooltipInstance.current) {
+        tooltipInstance.current.dispose();
+      }
+
+      toggleButtonRef.current.setAttribute(
+        "title",
+        isReturn
+          ? "Estás registrando una devolución. Haz clic para cambiar a venta."
+          : "Estás registrando una venta. Haz clic para cambiar a devolución."
+      );
+
+      tooltipInstance.current = new bootstrap.Tooltip(toggleButtonRef.current);
+    }
+  }, [isReturn]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -58,7 +81,8 @@ const POS: React.FC = () => {
 
   const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProduct || quantity <= 0) return;
+    const qty = parseInt(quantity || "0", 10);
+    if (!selectedProduct || qty <= 0) return;
 
     const existingIndex = cart.findIndex(
       (item) => item.id === selectedProduct.id
@@ -67,15 +91,15 @@ const POS: React.FC = () => {
     const updatedCart = [...cart];
 
     if (existingIndex >= 0) {
-      updatedCart[existingIndex].quantity += quantity;
+      updatedCart[existingIndex].quantity += qty;
     } else {
-      updatedCart.push({ ...selectedProduct, quantity });
+      updatedCart.push({ ...selectedProduct, quantity: qty });
     }
 
     setCart(updatedCart);
     setSearchTerm("");
     setSelectedProduct(null);
-    setQuantity(1);
+    setQuantity("");
   };
 
   const handleRemoveFromCart = (id: number) => {
@@ -87,7 +111,6 @@ const POS: React.FC = () => {
     0
   );
 
-  // 🔐 Validación al final, dentro del return
   if (isLoggedIn === null) return <p>Cargando...</p>;
   if (!isLoggedIn) return <Navigate to="/" />;
 
@@ -144,19 +167,35 @@ const POS: React.FC = () => {
                 id="quantity"
                 min={1}
                 value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
+                onChange={(e) => setQuantity(e.target.value)}
               />
             </div>
 
-            <button type="submit" className="btn custom-green-btn">
-              Agregar al carrito
-            </button>
+            <div className="d-flex align-items-center gap-3">
+              <button type="submit" className="btn custom-green-btn">
+                Agregar al carrito
+              </button>
+
+              <button
+                ref={toggleButtonRef}
+                type="button"
+                className={`btn ${
+                  isReturn ? "btn-warning" : "btn-outline-secondary"
+                } rounded-pill`}
+                onClick={() => setIsReturn(!isReturn)}
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+              >
+                {isReturn ? "Devolución" : "Venta"}
+              </button>
+            </div>
           </form>
 
           <div className="row mt-4">
             <div className="col-12">
               <h3>Detalles del Carrito</h3>
               <h4>Total: ${totalAmount.toFixed(2)}</h4>
+
               <button
                 type="button"
                 onClick={() => {
@@ -165,49 +204,55 @@ const POS: React.FC = () => {
                     return;
                   }
 
-                  const actionID = 1;
-                  const actionContextID = 1;
-                  const employeeID = 1; // provicional.
+                  const employeeID = 1; // Ajusta si tienes login real
                   const date = new Date().toISOString().slice(0, 10);
-
                   const products = cart.map((item) => ({
                     productID: item.productID,
                     quantity: item.quantity,
                   }));
 
-                  fetch("/api/pos", {
+                  const endpoint = isReturn ? "/api/pos/return/" : "/api/pos";
+                  const body = isReturn
+                    ? { employeeID, date, products }
+                    : {
+                        actionID: 1,
+                        actionContextID: 1,
+                        employeeID,
+                        date,
+                        products,
+                      };
+
+                  fetch(endpoint, {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({
-                      actionID,
-                      actionContextID,
-                      employeeID,
-                      date,
-                      products,
-                    }),
+                    body: JSON.stringify(body),
                   })
                     .then((res) => res.json())
                     .then((data) => {
                       if (data.success) {
-                        alert("Se registró la venta correctamente");
-                        console.log(data.results);
+                        alert(
+                          isReturn
+                            ? "Se registró la devolución correctamente"
+                            : "Se registró la venta correctamente"
+                        );
+                        setCart([]);
                       } else {
                         alert(data.error || "Error desconocido");
                       }
                     })
                     .catch((err) => {
-                      console.error("Error al registrar la venta:", err);
+                      console.error("Error al registrar:", err);
                       alert("Ocurrió un error al conectar con el servidor");
                     });
                 }}
                 className="btn custom-green-btn"
               >
-                Registrar Venta
+                {isReturn ? "Registrar Devolución" : "Registrar Venta"}
               </button>
 
-              <table className="table table-striped">
+              <table className="table table-striped mt-3">
                 <thead>
                   <tr>
                     <th>Producto</th>
@@ -220,8 +265,34 @@ const POS: React.FC = () => {
                 <tbody>
                   {cart.map((item) => (
                     <tr key={item.id}>
-                      <td>{item.name}</td>
-                      <td>{item.quantity}</td>
+                      <td>
+                        {item.name}{" "}
+                        {isReturn && (
+                          <span className="badge bg-warning text-dark ms-2">
+                            Devolución
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          className="form-control form-control-sm"
+                          style={{ width: "80px" }}
+                          min={1}
+                          value={item.quantity}
+                          onChange={(e) => {
+                            const newQty = parseInt(e.target.value, 10);
+                            if (!newQty || newQty < 1) return;
+
+                            const updatedCart = cart.map((cartItem) =>
+                              cartItem.id === item.id
+                                ? { ...cartItem, quantity: newQty }
+                                : cartItem
+                            );
+                            setCart(updatedCart);
+                          }}
+                        />
+                      </td>
                       <td>${item.price}</td>
                       <td>${item.quantity * item.price}</td>
                       <td>

@@ -23,15 +23,20 @@ export const Navbar: React.FC = () => {
       credentials: "include",
     });
 
-    navigate("/"); // login
+    navigate("/"); // Redirige al login
   };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark custom-green">
       <div className="container-fluid">
-        <a className="navbar-brand" href="#">
+        <span
+          className="navbar-brand"
+          role="button"
+          style={{ cursor: "pointer" }}
+          onClick={() => navigate("/dashboard")}
+        >
           Gestor de Inventario
-        </a>
+        </span>
         <button
           className="navbar-toggler"
           type="button"
@@ -43,6 +48,7 @@ export const Navbar: React.FC = () => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
+
         <div className="collapse navbar-collapse" id="menu_navegacion">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
@@ -61,21 +67,28 @@ export const Navbar: React.FC = () => {
             )}
 
             <li className="nav-item">
-              <a className="nav-link" href="/employees">
-                Empleados
-              </a>
-            </li>
-
-            <li className="nav-item">
               <a className="nav-link" href="/contact">
                 Contacto
               </a>
             </li>
 
-            <li className="nav-item">
-              <button className="nav-link " onClick={handleLogout}>
-                Cerrar Sesión: {user?.username}
-              </button>
+            {/*Dropdown de la sesión del usuario*/}
+            <li className="nav-item dropdown">
+              <span
+                className="nav-link dropdown-toggle"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Sesión: {user?.username}
+              </span>
+              <ul className="dropdown-menu dropdown-menu-end mt-4 logout-dropdown">
+                <li>
+                  <button className="dropdown-item" onClick={handleLogout}>
+                    Cerrar Sesión
+                  </button>
+                </li>
+              </ul>
             </li>
           </ul>
         </div>
