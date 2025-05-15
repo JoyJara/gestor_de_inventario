@@ -132,13 +132,13 @@ const ProductForm: React.FC<Props> = ({
                     type="number"
                     className="form-control"
                     min={0}
-                    value={stockToAdd}
+                    placeholder="Ingresa la cantidad de stock a sumar"
+                    value={stockToAdd === 0 ? "" : stockToAdd}
                     onChange={(e) =>
                       setStockToAdd(
                         e.target.value === "" ? 0 : Number(e.target.value)
                       )
                     }
-                    placeholder="Cantidad a agregar"
                   />
                 </div>
               )}
@@ -162,7 +162,7 @@ const ProductForm: React.FC<Props> = ({
                 />
               </div>
 
-              {/* Solo en modo agregar */}
+              {/* Solo si es agregar */}
               {mode === "add" && (
                 <>
                   <div className="mb-3">
@@ -177,6 +177,7 @@ const ProductForm: React.FC<Props> = ({
                       required
                     />
                   </div>
+
                   <div className="mb-3">
                     <label className="form-label">Descripción</label>
                     <textarea

@@ -4,7 +4,7 @@ import { GetProducts, LogSale, LogReturn } from "../controllers/posController";
 const router = Router();
 router.get('/', GetProducts);
 router.post('/', LogSale);
-router.post('/return/', LogReturn);
+router.put('/return/', LogReturn);
 
 
 export default router;

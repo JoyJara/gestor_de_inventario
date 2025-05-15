@@ -16,17 +16,15 @@ export const GetProducts = (req: Request, res: Response) => {
 
 // Controlador que registra las ventas del POS.
 export const LogSale = (req: Request, res: Response) => {
-  const { actionID, actionContextID, employeeID, date, products } = req.body;
+  const { employeeID, date, products } = req.body;
 
   if (!Array.isArray(products) || products.length === 0) {
     res.status(400).json({ error: "El carrito está vacío o mal formado" });
     return;
   }
 
-  const sql = `CALL logSale(?, ?, ?, ?, ?)`;
+  const sql = `CALL logSale(2, 1, ?, ?, ?)`;
   const params = [
-    actionID,
-    actionContextID,
     employeeID,
     date,
     JSON.stringify(products),
@@ -60,7 +58,7 @@ export const LogReturn = (req: Request, res: Response) => {
     return;
   }
 
-  const sql = `CALL logSale(1, 2, ?, ?, ?)`;
+  const sql = `CALL logReturn(1, 2, ?, ?, ?)`;
   const params = [
     employeeID,
     date,

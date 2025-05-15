@@ -18,6 +18,7 @@ interface CartItem extends Product {
 
 const POS: React.FC = () => {
   const isLoggedIn = useAuth();
+  const { user } = useAuth();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -204,7 +205,7 @@ const POS: React.FC = () => {
                     return;
                   }
 
-                  const employeeID = 1; // Ajusta si tienes login real
+                  const employeeID = user?.id; // Ajusta si tienes login real
                   const date = new Date().toISOString().slice(0, 10);
                   const products = cart.map((item) => ({
                     productID: item.productID,
@@ -212,18 +213,11 @@ const POS: React.FC = () => {
                   }));
 
                   const endpoint = isReturn ? "/api/pos/return/" : "/api/pos";
-                  const body = isReturn
-                    ? { employeeID, date, products }
-                    : {
-                        actionID: 1,
-                        actionContextID: 1,
-                        employeeID,
-                        date,
-                        products,
-                      };
+                  const method = isReturn ? "PUT" : "POST";
+                  const body = { employeeID, date, products };
 
                   fetch(endpoint, {
-                    method: "POST",
+                    method,
                     headers: {
                       "Content-Type": "application/json",
                     },

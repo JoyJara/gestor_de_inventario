@@ -44,12 +44,12 @@ const Dashboard: React.FC = () => {
           <div className="col-md-4">
             <div className="card text-center mb-3">
               <div className="card-body">
-                <h5 className="card-title">Reportes</h5>
+                <h5 className="card-title">Historial</h5>
                 <p className="card-text">
-                  Visualiza y crea informes de ventas y actividad.
+                  Consulta el historial de transacciones.
                 </p>
                 <Link to="/Reports" className="btn btn-outline-success">
-                  Ir a Reportes
+                  Ir a Historial
                 </Link>
               </div>
             </div>
