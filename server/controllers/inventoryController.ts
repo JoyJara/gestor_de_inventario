@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { InventoryDB } from "../db/connection";
 
-// Obtener todos los productos desde la vista
+// Obtener el inventario desde la vista
 export const GetInventory = (req: Request, res: Response) => {
   InventoryDB.query(`SELECT * FROM inventoryView`, (err, results) => {
     if (err) return res.status(500).send("Error en el servidor.");

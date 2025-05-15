@@ -48,7 +48,7 @@ const Dashboard: React.FC = () => {
                 <p className="card-text">
                   Consulta el historial de transacciones.
                 </p>
-                <Link to="/Reports" className="btn btn-outline-success">
+                <Link to="/history" className="btn btn-outline-success">
                   Ir a Historial
                 </Link>
               </div>
