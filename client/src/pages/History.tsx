@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Footer, Navbar } from "../components/HTML";
 import HistoryTable from "../components/HistoryTable";
+import HistoryFilter from "../components/HistoryFilter";
 
 interface HistoryEntry {
   transactionID: number;
@@ -14,7 +15,6 @@ interface HistoryEntry {
   date: string;
 }
 
-
 const History: React.FC = () => {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,20 +22,28 @@ const History: React.FC = () => {
     type: "",
     action: "",
     context: "",
-    productID: "",
+    transactionID: "",
     employeeName: "",
     date: "",
   });
 
+  const [uniqueActions, setUniqueActions] = useState<string[]>([]);
+  const [uniqueContexts, setUniqueContexts] = useState<string[]>([]);
+  const [uniqueEmployees, setUniqueEmployees] = useState<string[]>([]);
+
   useEffect(() => {
     fetch("/api/history")
       .then((res) => res.json())
-      .then((data) => {
-        const sorted = data.sort(
-          (a: HistoryEntry, b: HistoryEntry) =>
-            b.transactionID - a.transactionID
-        );
+      .then((data: HistoryEntry[]) => {
+        const sorted = data.sort((a, b) => b.transactionID - a.transactionID);
         setHistory(sorted);
+
+        setUniqueActions([...new Set(data.map((entry) => entry.action))]);
+        setUniqueContexts([...new Set(data.map((entry) => entry.context))]);
+        setUniqueEmployees([
+          ...new Set(data.map((entry) => entry.employeeName)),
+        ]);
+
         setLoading(false);
       })
       .catch((err) => {
@@ -47,21 +55,19 @@ const History: React.FC = () => {
   const filteredHistory = history.filter((entry) => {
     const matchType =
       filters.type === "" ||
-      entry.transactionType.toLowerCase().includes(filters.type.toLowerCase());
+      entry.transactionType.toLowerCase() === filters.type.toLowerCase();
     const matchAction =
       filters.action === "" ||
-      entry.action.toLowerCase().includes(filters.action.toLowerCase());
+      entry.action.toLowerCase() === filters.action.toLowerCase();
     const matchContext =
       filters.context === "" ||
-      entry.context.toLowerCase().includes(filters.context.toLowerCase());
-    const matchProductID =
-      filters.productID === "" ||
-      entry.productID?.toString().includes(filters.productID);
+      entry.context.toLowerCase() === filters.context.toLowerCase();
+    const matchTransactionID =
+      filters.transactionID === "" ||
+      entry.transactionID.toString().includes(filters.transactionID);
     const matchEmployee =
       filters.employeeName === "" ||
-      entry.employeeName
-        .toLowerCase()
-        .includes(filters.employeeName.toLowerCase());
+      entry.employeeName.toLowerCase() === filters.employeeName.toLowerCase();
     const matchDate =
       filters.date === "" || entry.date.slice(0, 10) === filters.date;
 
@@ -69,7 +75,7 @@ const History: React.FC = () => {
       matchType &&
       matchAction &&
       matchContext &&
-      matchProductID &&
+      matchTransactionID &&
       matchEmployee &&
       matchDate
     );
@@ -83,93 +89,13 @@ const History: React.FC = () => {
         <h1 className="mb-4">Historial de Transacciones</h1>
 
         {/* Barra de Filtros */}
-        <div className="card p-3 mb-4">
-          <h5>Filtrar Historial</h5>
-          <div className="row">
-            <div className="col-md-2 mb-2">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Tipo"
-                value={filters.type}
-                onChange={(e) =>
-                  setFilters({ ...filters, type: e.target.value })
-                }
-              />
-            </div>
-            <div className="col-md-2 mb-2">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Acción"
-                value={filters.action}
-                onChange={(e) =>
-                  setFilters({ ...filters, action: e.target.value })
-                }
-              />
-            </div>
-            <div className="col-md-2 mb-2">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Contexto"
-                value={filters.context}
-                onChange={(e) =>
-                  setFilters({ ...filters, context: e.target.value })
-                }
-              />
-            </div>
-            <div className="col-md-2 mb-2">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Producto ID"
-                value={filters.productID}
-                onChange={(e) =>
-                  setFilters({ ...filters, productID: e.target.value })
-                }
-              />
-            </div>
-            <div className="col-md-2 mb-2">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Empleado"
-                value={filters.employeeName}
-                onChange={(e) =>
-                  setFilters({ ...filters, employeeName: e.target.value })
-                }
-              />
-            </div>
-            <div className="col-md-2 mb-2">
-              <input
-                type="date"
-                className="form-control"
-                value={filters.date}
-                onChange={(e) =>
-                  setFilters({ ...filters, date: e.target.value })
-                }
-              />
-            </div>
-            <div className="col-md-2 mb-2 d-flex align-items-center">
-              <button
-                className="btn btn-outline-secondary w-100"
-                onClick={() =>
-                  setFilters({
-                    type: "",
-                    action: "",
-                    context: "",
-                    productID: "",
-                    employeeName: "",
-                    date: "",
-                  })
-                }
-              >
-                Limpiar filtros
-              </button>
-            </div>
-          </div>
-        </div>
+        <HistoryFilter
+          filters={filters}
+          setFilters={setFilters}
+          uniqueActions={uniqueActions}
+          uniqueContexts={uniqueContexts}
+          uniqueEmployees={uniqueEmployees}
+        />
 
         {/* Tabla de Historial */}
         {loading ? (
