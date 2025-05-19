@@ -8,7 +8,8 @@ import authRoutes from './routes/authRoutes';
 import inventoryRoutes from './routes/inventoryRoutes';
 import posRoutes from './routes/posRoutes';
 import employeesRoutes from './routes/employeesRoutes';
-import historyRoutes from './routes/historyRoutes'
+import historyRoutes from './routes/historyRoutes';
+import emailRoutes from './routes/emailRoutes'
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/pos', posRoutes);
 app.use('/api/employees', employeesRoutes);
 app.use('/api/history', historyRoutes)
+app.use("/api/email", emailRoutes);
 
 // Solo servir React si es producción y existe index.html
 const distPath = path.resolve(__dirname, 'dist');

@@ -1,8 +1,33 @@
-//import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Footer, Navbar } from "../components/HTML";
 
 const Contact: React.FC = () => {
-  // html de la página.
+  const [nombre, setNombre] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [asunto, setAsunto] = useState("");
+  const [mensaje, setMensaje] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("/api/email/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ nombre, correo, asunto, mensaje }),
+      });
+
+      const data = await response.json();
+      alert("Mensaje enviado correctamente");
+      console.log(data);
+    } catch (err) {
+      console.error("Error al enviar el mensaje:", err);
+      alert("Hubo un problema al enviar el mensaje.");
+    }
+  };
+
   return (
     <div className="d-flex flex-column min-vh-100">
       <header>
@@ -17,7 +42,7 @@ const Contact: React.FC = () => {
             En caso de tener dudas o aclaraciones llene el siguiente formulario
             y envíenos un mensaje.
           </p>
-          <form id="form-contacto">
+          <form id="form-contacto" onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="nombre" className="form-label">
                 Nombre
@@ -27,6 +52,8 @@ const Contact: React.FC = () => {
                 className="form-control"
                 id="nombre"
                 required
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
               />
             </div>
             <div className="mb-3">
@@ -38,6 +65,21 @@ const Contact: React.FC = () => {
                 className="form-control"
                 id="correo"
                 required
+                value={correo}
+                onChange={(e) => setCorreo(e.target.value)}
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="asunto" className="form-label">
+                Asunto
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="asunto"
+                required
+                value={asunto}
+                onChange={(e) => setAsunto(e.target.value)}
               />
             </div>
             <div className="mb-3">
@@ -49,9 +91,11 @@ const Contact: React.FC = () => {
                 id="mensaje"
                 rows={4}
                 required
+                value={mensaje}
+                onChange={(e) => setMensaje(e.target.value)}
               ></textarea>
             </div>
-            <button type="submit" className="btn custom-green-btn">
+            <button type="submit" className="btn custom-green-btn mb-4">
               Enviar
             </button>
           </form>
